@@ -1,0 +1,19 @@
+{
+  "projectTreeData": {
+    "mainProjectTreeInfo": {
+      "rootProject": null,
+      "rootProjectChildren": [],
+      "sharedData": {},
+      "initialMostRecentOperationTransactionId": "1160259809",
+      "initialPollingIntervalInMs": 10000,
+      "serverExpandedProjectsList": [],
+      "isReadOnly": null,
+      "ownerId": 0,
+      "ownerName": "owner",
+      "dateJoinedTimestampInSeconds": 1682623040,
+      "itemsCreatedInCurrentMonth": 5,
+      "monthlyItemQuota": 10000000
+    },
+    "auxiliaryProjectTreeInfos": []
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "items": [
+    {
+      "id": "1c336730-7fc0-74f7-1d21-53b1cbd064a1",
+      "nm": "Sublist in mirror",
+      "ct": 158406,
+      "pr": 100,
+      "prnt": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+      "metadata": {},
+      "lm": 158406
+    },
+    {
+      "id": "0f6f3186-bfc5-2874-992d-6b490b8efe3c",
+      "nm": "One",
+      "ct": 164,
+      "pr": 100,
+      "prnt": "de843e0e-2d25-a812-1415-6ed31ae618f4",
+      "metadata": {},
+      "lm": 227
+    },
+    {
+      "id": "de843e0e-2d25-a812-1415-6ed31ae618f4",
+      "nm": "List with sublist",
+      "ct": 146,
+      "pr": 100,
+      "prnt": null,
+      "metadata": {},
+      "lm": 223
+    },
+    {
+      "id": "22b98fae-39f4-2774-9d4e-de3869f043a6",
+      "nm": "One",
+      "ct": 168,
+      "pr": 200,
+      "prnt": "de843e0e-2d25-a812-1415-6ed31ae618f4",
+      "metadata": {},
+      "lm": 231
+    },
+    {
+      "id": "12f62eec-754c-b677-b683-7dd448dc49ac",
+      "nm": "List with description",
+      "ct": 148,
+      "pr": 200,
+      "prnt": null,
+      "metadata": {},
+      "no": "Two Description",
+      "lm": 155459
+    },
+    {
+      "id": "3e6b63c5-7e40-1e1e-9987-cd7af6e64893",
+      "nm": "List completed",
+      "ct": 150,
+      "pr": 300,
+      "prnt": null,
+      "metadata": {},
+      "cp": 199,
+      "lm": 157519
+    },
+    {
+      "id": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+      "nm": "List mirrored",
+      "ct": 158394,
+      "pr": 400,
+      "prnt": null,
+      "metadata": {
+        "mirror": {
+          "mirrorRootIds": { "460e5b75-1807-9e3a-5c19-8f835768c782": true }
+        },
+        "virtualRootIds": { "460e5b75-1807-9e3a-5c19-8f835768c782": true }
+      },
+      "lm": 158394
+    },
+    {
+      "id": "460e5b75-1807-9e3a-5c19-8f835768c782",
+      "nm": "",
+      "ct": 158432,
+      "pr": 500,
+      "prnt": null,
+      "metadata": {
+        "mirror": {
+          "originalId": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+          "isMirrorRoot": true
+        },
+        "originalId": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+        "isVirtualRoot": true
+      },
+      "lm": 158432
+    }
+  ],
+  "shared_projects": {},
+  "most_recent_operation_transaction_id": "1160300075"
+}
