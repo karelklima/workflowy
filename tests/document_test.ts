@@ -3,7 +3,7 @@ import mockInitializationData from "./mocks/get_initialization_data.json" assert
 };
 import mockTreeData from "./mocks/get_tree_data.json" assert { type: "json" };
 
-import { assertEquals, assertObjectMatch } from "../dev_deps.ts";
+import { assertEquals, assertObjectMatch } from "./test_deps.ts";
 
 import { Document } from "../src/document.ts";
 import { type Client } from "../src/client.ts";
