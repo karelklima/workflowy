@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "workflowy": "./mod.ts"
+  }
+}
