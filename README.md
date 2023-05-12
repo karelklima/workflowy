@@ -13,25 +13,22 @@ programatically and perhaps create some new automations and integrations.
 
 ## Basic usage
 
+### Authentication
+
+In order to access WorkFlowy content, you need to provide your WorkFlowy
+username and password. Authentication via one-time code or two-factor
+authentication are not supported because of technical limitations of WorkFlowy
+API.
+
 ### Fetching a WorkFlowy document
 
 ```typescript
-import { WorkFlowy } from "https://deno.land/x/workflowy@0.0.4/mod.ts";
+import { WorkFlowy } from "workflowy";
 
+// Log in with your username and password
 const workflowy = new WorkFlowy("your@email.com", "your-password");
-// Loads WorkFlowy outline into an interactive document structure
+// Load WorkFlowy outline into an interactive document structure
 const document = await workflowy.getDocument();
-
-// Returns the the very first list in your WorkFlowy home
-const myList = document.items[0];
-// Prints information about the list
-console.log(myList.name);
-console.log(myList.note);
-
-myList.setName("Some new name of the node");
-
-// saves all the changes in the document
-await document.save();
 ```
 
 ### Finding lists in a document
