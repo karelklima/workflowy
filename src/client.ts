@@ -246,4 +246,14 @@ export class Client {
       operationResult.new_most_recent_operation_transaction_id;
     return operationResult;
   }
+
+  /** Returns the client ID that this instance uses to query WorkFlowy */
+  public get clientId(): string {
+    return this.#clientId;
+  }
+
+  /** Returns the session headers with authentication cookie to query WorkFlowy */
+  public get sessionHeaders(): Headers {
+    return this.#sessionHeaders;
+  }
 }
