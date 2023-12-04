@@ -409,4 +409,17 @@ export class List {
       items: this.items.map((list) => list.toJson()),
     };
   }
+
+  /**
+   * Prints the list and its content in OPML format
+   *
+   * @returns list in OPML format
+   */
+  public toOpml(top: boolean = true): string {
+    const escapeQuotes = (text: string) => text.replace(/"/g, '&quot;');
+    const content = `<outline${this.isCompleted ? ' _complete="true"' : ''} text="${escapeQuotes(this.name)}"${this.note ? ` _note="${escapeQuotes(this.note)}"` : ''}>${this.items.map((list) => list.toOpml(false)).join('')}</outline>`;
+    return top
+      ? `<?xml version="1.0"?><opml version="2.0"><body>${content}</body></opml>`
+      : content;
+  }
 }
