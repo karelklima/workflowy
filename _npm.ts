@@ -1,7 +1,7 @@
 /**
  * This script builds the NPM package from Deno source
  */
-import { build, emptyDir } from "https://deno.land/x/dnt@0.35.0/mod.ts";
+import { build, emptyDir } from "https://deno.land/x/dnt@0.39.0/mod.ts";
 
 await emptyDir("./npm");
 
@@ -27,13 +27,13 @@ await build({
     },
     bugs: {
       url: "https://github.com/karelklima/workflowy/issues",
-    },
-    mappings: {
-      "https://deno.land/x/zod@v3.21.4/mod.ts": {
-        package: "zod",
-        version: "^3.21.4",
-      },
-    },
+    }
+  },
+  mappings: {
+    "https://deno.land/x/zod@v3.22.4/mod.ts": {
+      name: "zod",
+      version: "^3.22.4",
+    }
   },
   postBuild() {
     // steps to run after building and before running the tests
