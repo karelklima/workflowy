@@ -103,6 +103,16 @@ Deno.test("WorkFlowy Document / To JSON", () => {
   assertObjectMatch(json, expected);
 });
 
+Deno.test("WorkFlowy Document / To OPML", () => {
+  const document = mockDocument();
+
+  const opml = document.root.toOpml();
+
+  const expected = '<?xml version="1.0"?><opml version="2.0"><body><outline text="Home"><outline text="List with sublist"><outline text="One"></outline><outline text="One"></outline></outline><outline text="List with description" _note="Two Description"></outline><outline _complete="true" text="List completed"></outline><outline text="List mirrored"><outline text="Sublist in mirror"></outline></outline><outline text="List mirrored"><outline text="Sublist in mirror"></outline></outline></outline></body></opml>';
+
+  assertEquals(opml, expected);
+});
+
 Deno.test("WorkFlowy Document / Create list", () => {
   const document = mockDocument();
 
