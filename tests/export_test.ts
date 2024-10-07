@@ -8,7 +8,7 @@ import mockTreeData from "./mocks/get_tree_data_extended.json" with {
 import { assertEquals, assertObjectMatch } from "./test_deps.ts";
 
 import { Document } from "../src/document.ts";
-import { type Client } from "../src/client.ts";
+import type { Client } from "../src/client.ts";
 import { InitializationDataSchema, TreeDataSchema } from "../src/schema.ts";
 
 const mockClient = () => ({} as unknown as Client);
