@@ -1,0 +1,179 @@
+{
+  "items": [
+    {
+      "id": "0f6f3186-bfc5-2874-992d-6b490b8efe3c",
+      "nm": "One",
+      "ct": 164,
+      "pr": 100,
+      "prnt": "de843e0e-2d25-a812-1415-6ed31ae618f4",
+      "metadata": {},
+      "lm": 227
+    },
+    {
+      "id": "22b98fae-39f4-2774-9d4e-de3869f043a6",
+      "nm": "One",
+      "ct": 168,
+      "pr": 200,
+      "prnt": "de843e0e-2d25-a812-1415-6ed31ae618f4",
+      "metadata": {},
+      "lm": 45673905
+    },
+    {
+      "id": "3e6b63c5-7e40-1e1e-9987-cd7af6e64893",
+      "nm": "List completed",
+      "ct": 150,
+      "pr": 300,
+      "prnt": null,
+      "metadata": {},
+      "cp": 199,
+      "lm": 157519
+    },
+    {
+      "id": "de843e0e-2d25-a812-1415-6ed31ae618f4",
+      "nm": "List with sublists",
+      "ct": 146,
+      "pr": 100,
+      "prnt": null,
+      "metadata": {},
+      "no": "Nested in four levels",
+      "lm": 45673898
+    },
+    {
+      "id": "12f62eec-754c-b677-b683-7dd448dc49ac",
+      "nm": "List with description",
+      "ct": 148,
+      "pr": 200,
+      "prnt": null,
+      "metadata": {},
+      "no": "Two Description",
+      "lm": 164621
+    },
+    {
+      "id": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+      "nm": "List mirrored",
+      "ct": 158394,
+      "pr": 400,
+      "prnt": null,
+      "metadata": {
+        "mirror": {
+          "mirrorRootIds": {
+            "460e5b75-1807-9e3a-5c19-8f835768c782": true
+          }
+        },
+        "virtualRootIds": {
+          "460e5b75-1807-9e3a-5c19-8f835768c782": true
+        }
+      },
+      "lm": 413259
+    },
+    {
+      "id": "460e5b75-1807-9e3a-5c19-8f835768c782",
+      "nm": "",
+      "ct": 158432,
+      "pr": 500,
+      "prnt": null,
+      "metadata": {
+        "mirror": {
+          "originalId": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+          "isMirrorRoot": true
+        },
+        "originalId": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+        "isVirtualRoot": true
+      },
+      "lm": 158432
+    },
+    {
+      "id": "9fcb2182-10a5-5f5a-a896-915965d8e755",
+      "nm": "List with long text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed luctus facilisis neque quis scelerisque. Etiam pharetra feugiat lorem, in fringilla nunc laoreet a. Nunc laoreet mauris non consequat gravida. Nunc placerat orci a sapien aliquam, volutpat posuere metus pellentesque. Nulla sit amet sapien ut urna sagittis eleifend ut at dolor. Sed erat metus, placerat id convallis sit amet, mollis vel lacus. Proin quis ullamcorper mauris. Cras commodo turpis vitae felis luctus, ut elementum odio pretium. Phasellus eleifend ut ex at faucibus. Mauris mollis augue at lectus pharetra mattis.",
+      "ct": 45673768,
+      "pr": 588,
+      "prnt": null,
+      "metadata": {},
+      "no": "Note: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed luctus facilisis neque quis scelerisque. Etiam pharetra feugiat lorem, in fringilla nunc laoreet a. Nunc laoreet mauris non consequat gravida. Nunc placerat orci a sapien aliquam, volutpat posuere metus pellentesque. Nulla sit amet sapien ut urna sagittis eleifend ut at dolor. Sed erat metus, placerat id convallis sit amet, mollis vel lacus. Proin quis ullamcorper mauris. Cras commodo turpis vitae felis luctus, ut elementum odio pretium. Phasellus eleifend ut ex at faucibus. Mauris mollis augue at lectus pharetra mattis.",
+      "lm": 45673857
+    },
+    {
+      "id": "93abe0c9-613c-920a-c302-24a555ab1e1f",
+      "nm": "Two",
+      "ct": 45673899,
+      "pr": 100,
+      "prnt": "22b98fae-39f4-2774-9d4e-de3869f043a6",
+      "metadata": {},
+      "lm": 45673902
+    },
+    {
+      "id": "2fd5d3d4-03c3-3856-f724-6725c1c23f38",
+      "nm": "Two",
+      "ct": 45673903,
+      "pr": 200,
+      "prnt": "22b98fae-39f4-2774-9d4e-de3869f043a6",
+      "metadata": {},
+      "lm": 45673906
+    },
+    {
+      "id": "2d2088f1-97b8-01f7-a397-a1d701fd965c",
+      "nm": "Three",
+      "ct": 45673902,
+      "pr": 100,
+      "prnt": "93abe0c9-613c-920a-c302-24a555ab1e1f",
+      "metadata": {},
+      "lm": 45673920
+    },
+    {
+      "id": "1c336730-7fc0-74f7-1d21-53b1cbd064a1",
+      "nm": "Sublist in mirror",
+      "ct": 158406,
+      "pr": 100,
+      "prnt": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+      "metadata": {},
+      "lm": 45673693
+    },
+    {
+      "id": "52fa4a01-4b37-256f-cb3a-7ccd91f88916",
+      "nm": "Four",
+      "ct": 45673920,
+      "pr": 100,
+      "prnt": "2d2088f1-97b8-01f7-a397-a1d701fd965c",
+      "metadata": {},
+      "lm": 45673922
+    },
+    {
+      "id": "730f31e9-beb5-b4b9-ad2e-7f0fa2393875",
+      "nm": "List with <b>bold</b>, <i>italics</i>, <u>underline</u> and <a href=\"https://example.com\">link</a>",
+      "ct": 45673673,
+      "pr": 550,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45673740
+    },
+    {
+      "id": "db58a522-a865-641a-f907-7a0a2e0881ee",
+      "nm": "List with date <time startYear=\"2024\" startMonth=\"10\" startDay=\"7\">Mon, Oct 7, 2024</time> and tag #test",
+      "ct": 45673742,
+      "pr": 575,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45673765
+    },
+    {
+      "id": "c957fc58-b8a8-3f0f-20b6-ddb2b13dcf4e",
+      "nm": "List with HTML special chars &lt; &gt; &amp; \" '",
+      "ct": 45674231,
+      "pr": 582,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45674382
+    }
+  ],
+  "shared_projects": {},
+  "most_recent_operation_transaction_id": "1170199658",
+  "server_expanded_projects_list": [
+    "de843e0e",
+    "68e27b97",
+    "460e5b75",
+    "12f62eec",
+    "22b98fae",
+    "93abe0c9",
+    "2d2088f1"
+  ]
+}

@@ -1,7 +1,7 @@
-import mockInitializationData from "./mocks/get_initialization_data.json" assert {
+import mockInitializationData from "./mocks/get_initialization_data.json" with {
   type: "json",
 };
-import mockTreeData from "./mocks/get_tree_data.json" assert { type: "json" };
+import mockTreeData from "./mocks/get_tree_data.json" with { type: "json" };
 
 import { assertEquals, assertObjectMatch } from "./test_deps.ts";
 
@@ -41,76 +41,6 @@ Deno.test("WorkFlowy Document / Load tree", () => {
   assertEquals(home.items[4].name, "List mirrored");
   assertEquals(home.items[4].isMirror, true);
   assertEquals(home.items[4].items[0].name, "Sublist in mirror");
-});
-
-Deno.test("WorkFlowy Document / To string", () => {
-  const document = mockDocument();
-
-  const text = document.root.toString(true);
-  const expected = `- List with sublist
-    - One
-    - One
-- List with description
-  Two Description
-- List completed
-- List mirrored
-    - Sublist in mirror
-- List mirrored
-    - Sublist in mirror`;
-
-  assertEquals(text, expected);
-});
-
-Deno.test("WorkFlowy Document / To JSON", () => {
-  const document = mockDocument();
-
-  const json = document.root.toJson();
-
-  const expected = {
-    id: "None",
-    name: "Home",
-    items: [
-      {
-        name: "List with sublist",
-        items: [
-          { name: "One" },
-          { name: "One" },
-        ],
-      },
-      {
-        name: "List with description",
-        note: "Two Description",
-      },
-      {
-        name: "List completed",
-        isCompleted: true,
-      },
-      {
-        name: "List mirrored",
-        items: [{
-          name: "Sublist in mirror",
-        }],
-      },
-      {
-        name: "List mirrored",
-        items: [{
-          name: "Sublist in mirror",
-        }],
-      },
-    ],
-  };
-
-  assertObjectMatch(json, expected);
-});
-
-Deno.test("WorkFlowy Document / To OPML", () => {
-  const document = mockDocument();
-
-  const opml = document.root.toOpml();
-
-  const expected = '<?xml version="1.0"?><opml version="2.0"><body><outline text="Home"><outline text="List with sublist"><outline text="One"></outline><outline text="One"></outline></outline><outline text="List with description" _note="Two Description"></outline><outline _complete="true" text="List completed"></outline><outline text="List mirrored"><outline text="Sublist in mirror"></outline></outline><outline text="List mirrored"><outline text="Sublist in mirror"></outline></outline></outline></body></opml>';
-
-  assertEquals(opml, expected);
 });
 
 Deno.test("WorkFlowy Document / Create list", () => {

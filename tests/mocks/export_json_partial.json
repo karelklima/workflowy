@@ -1,0 +1,23 @@
+{
+  "name": "List with sublists",
+  "items": [
+    { "name": "One" },
+    {
+      "name": "One",
+      "items": [
+        {
+          "name": "Two",
+          "items": [
+            {
+              "name": "Three",
+              "items": [
+                { "name": "Four" }
+              ]
+            }
+          ]
+        },
+        { "name": "Two" }
+      ]
+    }
+  ]
+}

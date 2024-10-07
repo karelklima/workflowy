@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<opml version="2.0">
+  <body>
+    <outline text="List with sublists" _note="Nested in four levels">
+      <outline text="One" />
+      <outline text="One">
+        <outline text="Two">
+          <outline text="Three">
+            <outline text="Four" />
+          </outline>
+        </outline>
+        <outline text="Two" />
+      </outline>
+    </outline>
+    <outline text="List with description" _note="Two Description" />
+    <outline _complete="true" text="List completed" />
+    <outline text="List mirrored">
+      <outline text="Sublist in mirror" />
+    </outline>
+    <outline text="List mirrored">
+      <outline text="Sublist in mirror" />
+    </outline>
+    <outline text="List with &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italics&lt;/i&gt;, &lt;u&gt;underline&lt;/u&gt; and &lt;a href=&quot;https://example.com&quot;&gt;link&lt;/a&gt;" />
+    <outline text="List with date &lt;time startYear=&quot;2024&quot; startMonth=&quot;10&quot; startDay=&quot;7&quot;&gt;Mon, Oct 7, 2024&lt;/time&gt; and tag #test" />
+    <outline text="List with HTML special chars &amp;lt; &amp;gt; &amp; &quot; '" />
+    <outline text="List with long text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed luctus facilisis neque quis scelerisque. Etiam pharetra feugiat lorem, in fringilla nunc laoreet a. Nunc laoreet mauris non consequat gravida. Nunc placerat orci a sapien aliquam, volutpat posuere metus pellentesque. Nulla sit amet sapien ut urna sagittis eleifend ut at dolor. Sed erat metus, placerat id convallis sit amet, mollis vel lacus. Proin quis ullamcorper mauris. Cras commodo turpis vitae felis luctus, ut elementum odio pretium. Phasellus eleifend ut ex at faucibus. Mauris mollis augue at lectus pharetra mattis." _note="Note: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed luctus facilisis neque quis scelerisque. Etiam pharetra feugiat lorem, in fringilla nunc laoreet a. Nunc laoreet mauris non consequat gravida. Nunc placerat orci a sapien aliquam, volutpat posuere metus pellentesque. Nulla sit amet sapien ut urna sagittis eleifend ut at dolor. Sed erat metus, placerat id convallis sit amet, mollis vel lacus. Proin quis ullamcorper mauris. Cras commodo turpis vitae felis luctus, ut elementum odio pretium. Phasellus eleifend ut ex at faucibus. Mauris mollis augue at lectus pharetra mattis." />
+  </body>
+</opml>

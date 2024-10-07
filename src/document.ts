@@ -377,13 +377,14 @@ export class List {
    */
   public toString(omitHeader = false, indent = ""): string {
     const text: string[] = [];
-    if (!omitHeader) {
+    const printHeader = !omitHeader && this.id !== "None";
+    if (printHeader) {
       text.push(indent + "- " + this.name);
       if (this.note) {
         text.push(indent + "  " + this.note);
       }
     }
-    const nextIndent = `${indent}${omitHeader ? "" : "    "}`;
+    const nextIndent = `${indent}${printHeader ? "    " : ""}`;
     const childrenTextChunks = this.items.map((p) =>
       p.toString(false, nextIndent)
     );
@@ -416,8 +417,26 @@ export class List {
    * @returns list in OPML format
    */
   public toOpml(top = true): string {
-    const escapeQuotes = (text: string) => text.replace(/"/g, '&quot;');
-    const content = `<outline${this.isCompleted ? ' _complete="true"' : ''} text="${escapeQuotes(this.name)}"${this.note ? ` _note="${escapeQuotes(this.note)}"` : ''}>${this.items.map((list) => list.toOpml(false)).join('')}</outline>`;
+    const escape = (text: string) =>
+      text.replace(/&/g, "&amp;")
+        .replace(/&amp;amp;/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    const children = this.items.map((list) => list.toOpml(false)).join("");
+    const attributes = [
+      this.isCompleted ? ' _complete="true"' : "",
+      ` text="${escape(this.name)}"`,
+      this.note ? ` _note="${escape(this.note)}"` : "",
+    ].join("");
+
+    const content = this.id === "None"
+      ? children
+      : children === ""
+      ? `<outline${attributes} />`
+      : `<outline${attributes}>${children}</outline>`;
+
     return top
       ? `<?xml version="1.0"?><opml version="2.0"><body>${content}</body></opml>`
       : content;
