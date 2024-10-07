@@ -5,7 +5,7 @@ import type {
   TreeItem,
   TreeItemWithChildren,
 } from "./schema.ts";
-import { toJson, toOpml, toString } from "./export.ts";
+import { toJson, toOpml, toPlainText, toString } from "./export.ts";
 
 class Companion {
   private operations: Operation[] = [];
@@ -377,6 +377,15 @@ export class List {
    */
   public toString(omitHeader = false): string {
     return toString(this, omitHeader);
+  }
+
+  /**
+   * Prints the list and its content in Plain Text format
+   *
+   * @returns {string} list in Plain Text format
+   */
+  public toPlainText(): string {
+    return toPlainText(this);
   }
 
   /**

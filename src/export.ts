@@ -20,6 +20,48 @@ export function toString(list: List, omitHeader = false, indent = ""): string {
   return text.join("\n");
 }
 
+export function toPlainText(
+  list: List,
+  top = true,
+  indent = "",
+): string {
+  const nextIndent = `${indent}${top ? "" : "  "}`;
+  const childrenTextChunks = list.items.map((sublist) =>
+    toPlainText(sublist, false, nextIndent)
+  );
+
+  if (list.id === "None") {
+    return childrenTextChunks.join("\n");
+  }
+
+  const decode = (text: string) =>
+    text.replace(/<[^>]+>/g, "")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">");
+
+  const text: string[] = [];
+  const complete = list.isCompleted ? "[COMPLETE] " : "";
+  if (top) {
+    text.push(`${complete}${decode(list.name)}`);
+    text.push("");
+    if (list.note) {
+      text.push(`"${decode(list.note)}"`);
+      text.push("");
+    }
+  } else {
+    text.push(`${indent}- ${complete}${decode(list.name)}`);
+    if (list.note) {
+      text.push(`${indent}  "${decode(list.note)}"`);
+    }
+  }
+
+  if (childrenTextChunks.length > 0) {
+    text.push(childrenTextChunks.join("\n"));
+  }
+  return text.join("\n");
+}
+
 // deno-lint-ignore no-explicit-any
 export function toJson(list: List): any {
   return {

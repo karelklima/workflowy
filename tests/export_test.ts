@@ -46,6 +46,30 @@ Deno.test("WorkFlowy Export / To string partial", () => {
   assertEquals(text, expected);
 });
 
+Deno.test("WorkFlowy Export / To Plain Text all", () => {
+  const document = mockDocument();
+
+  const text = document.root.toPlainText();
+  const expected = readFile("./mocks/export_plaintext_all.txt").replaceAll(
+    "\r\n",
+    "\n",
+  ).trimEnd();
+
+  assertEquals(text, expected);
+});
+
+Deno.test("WorkFlowy Export / To Plain Text partial", () => {
+  const document = mockDocument();
+
+  const text = document.root.items[0].toPlainText();
+  const expected = readFile("./mocks/export_plaintext_partial.txt").replaceAll(
+    "\r\n",
+    "\n",
+  ).trimEnd();
+
+  assertEquals(text, expected);
+});
+
 Deno.test("WorkFlowy Export / To JSON all", () => {
   const document = mockDocument();
 
