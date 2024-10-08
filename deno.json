@@ -1,5 +1,5 @@
 {
   "name": "@workflowy/workflowy",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "exports": "./mod.ts"
 }
