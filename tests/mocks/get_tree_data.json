@@ -85,8 +85,48 @@
         "isVirtualRoot": true
       },
       "lm": 158432
+    },
+    {
+      "id": "aaba6df4-cde1-3322-96cd-957fc76123e8",
+      "nm": "List shared via URL",
+      "ct": 45772460,
+      "pr": 538,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45772507
+    },
+    {
+      "id": "8960ce1b-e5b5-4aff-3303-50577f20e76b",
+      "nm": "List shared via email",
+      "ct": 45707709,
+      "pr": 525,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45708060
     }
   ],
-  "shared_projects": {},
+  "shared_projects": {
+    "aaba6df4-cde1-3322-96cd-957fc76123e8": {
+      "share_id": "NnjJ.tUQQvYjgkV",
+      "url_shared_info": {
+        "write_permission": false,
+        "permission_level": 1,
+        "access_token": "plUzlWcMHcwbR3wZ"
+      }
+    },
+    "8960ce1b-e5b5-4aff-3303-50577f20e76b": {
+      "share_id": "NnjJ.lybhWrZBRs",
+      "email_shared_info": {
+        "emails": [
+          {
+            "email": "example@example.com",
+            "access_token": "L2RdOGpOND",
+            "write_permission": true,
+            "permission_level": 3
+          }
+        ]
+      }
+    }
+  },
   "most_recent_operation_transaction_id": "1160300075"
 }

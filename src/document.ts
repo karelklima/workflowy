@@ -2,16 +2,25 @@ import type { Client } from "./client.ts";
 import type {
   InitializationData,
   Operation,
-  TreeItem,
+  TreeData,
+  TreeItemShareInfo,
   TreeItemWithChildren,
 } from "./schema.ts";
 import { toJson, toOpml, toPlainText, toString } from "./export.ts";
+import {
+  createAccessToken,
+  createSharedUrl,
+  fromNativePermissionLevel,
+  PermissionLevel,
+  toNativePermissionLevel,
+} from "./share.ts";
 
 class Companion {
   private operations: Operation[] = [];
   constructor(
     public readonly client: Client,
     public readonly itemMap: Map<string, TreeItemWithChildren>,
+    public readonly shareMap: Map<string, TreeItemShareInfo>,
     public readonly initializationData: InitializationData,
   ) {}
 
@@ -55,7 +64,7 @@ export class Document {
 
   constructor(
     client: Client,
-    items: TreeItem[],
+    data: TreeData,
     initializationData: InitializationData,
   ) {
     const itemMap = new Map<string, TreeItemWithChildren>();
@@ -69,9 +78,9 @@ export class Document {
       return newItem;
     };
 
-    items.sort((a, b) => Math.sign(a.priority - b.priority));
+    data.items.sort((a, b) => Math.sign(a.priority - b.priority));
 
-    for (const item of items) {
+    for (const item of data.items) {
       const p = getItem(item.parentId);
       p.children.push(item.id);
       const t = getItem(item.id);
@@ -80,7 +89,18 @@ export class Document {
 
     itemMap.get("None")!.name = "Home";
 
-    this.#companion = new Companion(client, itemMap, initializationData);
+    const shareMap = new Map<string, TreeItemShareInfo>();
+
+    for (const [id, shareInfo] of Object.entries(data.shared_projects)) {
+      shareMap.set(id, shareInfo);
+    }
+
+    this.#companion = new Companion(
+      client,
+      itemMap,
+      shareMap,
+      initializationData,
+    );
     this.root = this.getList("None");
   }
 
@@ -137,6 +157,19 @@ export class List {
       return this.#companion.itemMap.get(source.originalId!)!;
     }
     return source;
+  }
+
+  private get shareData(): TreeItemShareInfo {
+    const id = this.data.id;
+    if (!this.#companion.shareMap.has(id)) {
+      this.#companion.shareMap.set(id, {
+        isSharedViaUrl: false,
+        urlAccessToken: undefined,
+        urlPermissionLevel: undefined,
+        isSharedViaEmail: false,
+      });
+    }
+    return this.#companion.shareMap.get(this.id)!;
   }
 
   /** List name */
@@ -197,8 +230,34 @@ export class List {
     return this.data.children;
   }
 
+  /** True if the list is shared via URL */
+  public get isSharedViaUrl(): boolean {
+    return this.shareData.isSharedViaUrl;
+  }
+
+  /** True if the list is shared via email */
+  public get isSharedViaEmail(): boolean {
+    return this.shareData.isSharedViaEmail;
+  }
+
+  /** Returns shared URL or undefined if the list is not shared */
+  public get sharedUrl(): string | undefined {
+    if (this.isSharedViaUrl) {
+      return createSharedUrl(this.shareData.urlAccessToken!);
+    }
+    return undefined;
+  }
+
+  /** Returns shared permission level of the list */
+  public get sharedUrlPermissionLevel(): PermissionLevel {
+    return fromNativePermissionLevel(this.shareData.urlPermissionLevel || 0);
+  }
+
   /** Finds an item in this list and returns it, undefined if it does not find any */
-  public findOne(namePattern: RegExp, descriptionPattern = /.*/) {
+  public findOne(
+    namePattern: RegExp,
+    descriptionPattern = /.*/,
+  ): List | undefined {
     const results = this.findAll(namePattern, descriptionPattern);
     return results.length > 0 ? results[0] : undefined;
   }
@@ -207,7 +266,7 @@ export class List {
   public findAll(
     namePattern: RegExp,
     notePattern = /.*/,
-  ) {
+  ): List[] {
     const results: List[] = [];
     for (const candidate of this.items) {
       const nameMatch = candidate.name.match(namePattern);
@@ -227,7 +286,7 @@ export class List {
    * -1 appends the list to the end
    * @returns the new list
    */
-  public createList(priority = -1) {
+  public createList(priority = -1): List {
     if (priority === -1) {
       priority = this.itemIds.length;
     }
@@ -271,7 +330,7 @@ export class List {
    * -1 appends the item to the end
    * @returns the new item
    */
-  public createItem(priority = -1) {
+  public createItem(priority = -1): List {
     return this.createList(priority);
   }
 
@@ -367,6 +426,109 @@ export class List {
       },
     });
     this.parent.itemIds.splice(this.priority, 1);
+  }
+
+  /**
+   * Enables sharing for the list and returns a shared URL
+   *
+   * @param permissionLevel Permission level - View, EditAndComment, or FullAccess
+   * @returns Shared URL
+   */
+  public shareViaUrl(permissionLevel: PermissionLevel): string {
+    if (
+      permissionLevel !== PermissionLevel.View &&
+      permissionLevel !== PermissionLevel.EditAndComment &&
+      permissionLevel !== PermissionLevel.FullAccess
+    ) {
+      throw new Error(
+        "Invalid permission level. Use PermissionLevel.View, PermissionLevel.EditAndComment, or PermissionLevel.FullAccess. To disable sharing use the unshare method.",
+      );
+    }
+
+    if (
+      this.isSharedViaUrl && this.sharedUrlPermissionLevel === permissionLevel
+    ) {
+      return this.sharedUrl!;
+    }
+
+    if (!this.isSharedViaUrl && !this.isSharedViaEmail) {
+      this.#companion.addOperation({
+        type: "share",
+        data: {
+          projectid: this.id,
+        },
+        undo_data: {
+          previous_last_modified: this.data.lastModified,
+          previous_last_modified_by: null,
+        },
+      });
+    }
+
+    this.shareData.isSharedViaUrl = true;
+
+    if (!this.shareData.urlAccessToken) {
+      this.shareData.urlAccessToken = createAccessToken();
+    }
+
+    this.shareData.urlPermissionLevel = toNativePermissionLevel(
+      permissionLevel,
+    );
+
+    this.#companion.addOperation({
+      type: "add_shared_url",
+      data: {
+        projectid: this.id,
+        permission_level: this.shareData.urlPermissionLevel,
+        access_token: this.shareData.urlAccessToken,
+      },
+      undo_data: {
+        previous_last_modified: this.data.lastModified,
+        previous_last_modified_by: null,
+        previous_permission_level: this.shareData.urlPermissionLevel, // This is weird, but WF does it so
+      },
+    });
+
+    return this.sharedUrl!;
+  }
+
+  /**
+   * Disables sharing via URL for the list
+   */
+  public unshareViaUrl() {
+    if (!this.isSharedViaUrl) {
+      return;
+    }
+
+    this.#companion.addOperation({
+      type: "remove_shared_url",
+      data: {
+        projectid: this.id,
+      },
+      undo_data: {
+        previous_last_modified: this.data.lastModified,
+        previous_last_modified_by: null,
+        permission_level: this.shareData.urlPermissionLevel!, // This is weird, but WF does it so
+      },
+    });
+
+    this.shareData.isSharedViaUrl = false;
+    this.shareData.urlAccessToken = undefined;
+    this.shareData.urlPermissionLevel = undefined;
+
+    if (this.isSharedViaEmail) {
+      return;
+    }
+
+    this.#companion.addOperation({
+      type: "unshare",
+      data: {
+        projectid: this.id,
+      },
+      undo_data: {
+        previous_last_modified: this.data.lastModified,
+        previous_last_modified_by: null,
+      },
+    });
   }
 
   /**

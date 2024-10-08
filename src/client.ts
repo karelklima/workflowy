@@ -8,8 +8,8 @@ import {
   type Operation,
   type OperationResult,
   OperationResultSchema,
+  type TreeData,
   TreeDataSchema,
-  type TreeItem,
 } from "./schema.ts";
 
 const WORKFLOWY_URL = "https://workflowy.com";
@@ -191,11 +191,11 @@ export class Client {
    * Queries `workflowy.com/get_tree_data` endpoint
    * @returns List of all items in WorkFlowy document
    */
-  public async getTreeData(): Promise<TreeItem[]> {
+  public async getTreeData(): Promise<TreeData> {
     const json = await this.#authenticatedFetch(TREE_DATA_URL);
     const data = TreeDataSchema.parse(json);
     this.#lastTransactionId = data.most_recent_operation_transaction_id;
-    return data.items;
+    return data;
   }
 
   /**

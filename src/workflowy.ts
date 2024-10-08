@@ -38,7 +38,7 @@ export class WorkFlowy {
    */
   public async getDocument(): Promise<Document> {
     const initializationData = await this.#client.getInitializationData();
-    const items = await this.#client.getTreeData();
-    return new Document(this.#client, items, initializationData);
+    const treeData = await this.#client.getTreeData();
+    return new Document(this.#client, treeData, initializationData);
   }
 }

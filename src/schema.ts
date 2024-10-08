@@ -24,6 +24,28 @@ export const InitializationDataSchema = z.object({
 
 export type InitializationData = z.infer<typeof InitializationDataSchema>;
 
+const TreeItemShareInfoSchema = z.object({
+  share_id: z.string(),
+  url_shared_info: z.object({
+    access_token: z.string(),
+    permission_level: z.number(),
+  }).optional(),
+  email_shared_info: z.object({
+    emails: z.array(z.object({
+      email: z.string(),
+      access_token: z.string(),
+      permission_level: z.number(),
+    })),
+  }).optional(),
+}).transform((i) => ({
+  isSharedViaUrl: i.url_shared_info !== undefined,
+  urlAccessToken: i.url_shared_info?.access_token,
+  urlPermissionLevel: i.url_shared_info?.permission_level,
+  isSharedViaEmail: i.email_shared_info !== undefined,
+}));
+
+export type TreeItemShareInfo = z.infer<typeof TreeItemShareInfoSchema>;
+
 export const TreeDataSchema = z.object({
   most_recent_operation_transaction_id: z.string(),
   items: z.array(
@@ -53,6 +75,7 @@ export const TreeDataSchema = z.object({
       isMirrorRoot: i.metadata?.mirror?.isMirrorRoot === true,
     })),
   ),
+  shared_projects: z.record(TreeItemShareInfoSchema),
 });
 
 export type TreeData = z.infer<typeof TreeDataSchema>;
@@ -72,6 +95,8 @@ export const OperationSchema = z.object({
     description: z.string().optional(),
     priority: z.number().optional(),
     starting_priority: z.number().optional(),
+    permission_level: z.number().optional(),
+    access_token: z.string().optional(),
   }),
   client_timestamp: z.number().optional(),
   undo_data: z.object({
@@ -84,6 +109,8 @@ export const OperationSchema = z.object({
     previous_priority: z.number().optional(),
     parentid: z.string().optional(),
     priority: z.number().optional(),
+    permission_level: z.number().optional(),
+    previous_permission_level: z.number().optional(),
   }),
 });
 

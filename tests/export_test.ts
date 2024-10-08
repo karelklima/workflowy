@@ -17,7 +17,7 @@ const mockInitialization = () =>
   InitializationDataSchema.parse(mockInitializationData);
 
 const mockDocument = () =>
-  new Document(mockClient(), mockTree().items, mockInitialization());
+  new Document(mockClient(), mockTree(), mockInitialization());
 
 const readFile = (fileName: string) =>
   Deno.readTextFileSync(new URL(import.meta.resolve(fileName)));
