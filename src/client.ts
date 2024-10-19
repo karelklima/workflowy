@@ -203,9 +203,13 @@ export class Client {
    *
    * Queries `workflowy.com/push_and_pull` endpoint
    * @param operations List of operations to perform in WorkFlowy
+   * @param expansionsDelta Record of list expansions to perform in WorkFlowy
    * @returns List of operations ran on WorkFlowy since last push and pull
    */
-  public async pushAndPull(operations: Operation[]): Promise<OperationResult> {
+  public async pushAndPull(
+    operations: Operation[],
+    expansionsDelta: Record<string, boolean> = {},
+  ): Promise<OperationResult> {
     const initializationData = await this.getInitializationData();
     const time = Math.floor(Date.now() / 1000);
     const timestamp = time -
@@ -222,6 +226,7 @@ export class Client {
       {
         most_recent_operation_transaction_id: lastTransactionId,
         operations: ops,
+        project_expansions_delta: expansionsDelta,
       },
     ]);
 

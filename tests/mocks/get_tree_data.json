@@ -128,5 +128,8 @@
       }
     }
   },
-  "most_recent_operation_transaction_id": "1160300075"
+  "most_recent_operation_transaction_id": "1160300075",
+  "server_expanded_projects_list": [
+    "de843e0e"
+  ]
 }

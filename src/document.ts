@@ -17,10 +17,12 @@ import {
 
 class Companion {
   private operations: Operation[] = [];
+  private expansionsDelta: Map<string, boolean> = new Map();
   constructor(
     public readonly client: Client,
     public readonly itemMap: Map<string, TreeItemWithChildren>,
     public readonly shareMap: Map<string, TreeItemShareInfo>,
+    public readonly expandedProjects: Set<string>,
     public readonly initializationData: InitializationData,
   ) {}
 
@@ -28,18 +30,28 @@ class Companion {
     return this.operations;
   }
 
+  public getPendingExpansionsDelta() {
+    return this.expansionsDelta;
+  }
+
   public addOperation(operation: Operation): void {
     this.operations.push(operation);
   }
 
+  public addExpansionDelta(id: string, expanded: boolean) {
+    this.expansionsDelta.set(id, expanded);
+  }
+
   public isDirty() {
-    return this.operations.length > 0;
+    return this.operations.length > 0 || this.expansionsDelta.size > 0;
   }
 
   public async save(): Promise<void> {
     const ops = this.operations;
     this.operations = []; // purge
-    const operationResult = await this.client.pushAndPull(ops);
+    const expansionsDelta = Object.fromEntries(this.expansionsDelta);
+    this.expansionsDelta = new Map(); // purge
+    const operationResult = await this.client.pushAndPull(ops, expansionsDelta);
 
     if (operationResult.error_encountered_in_remote_operations) {
       throw new Error("Error encountered in remote WorkFlowy operations");
@@ -95,10 +107,13 @@ export class Document {
       shareMap.set(id, shareInfo);
     }
 
+    const expandedProjects = new Set(data.server_expanded_projects_list);
+
     this.#companion = new Companion(
       client,
       itemMap,
       shareMap,
+      expandedProjects,
       initializationData,
     );
     this.root = this.getList("None");
@@ -121,6 +136,11 @@ export class Document {
   /** Returns a list of changes to be made to WorkFlowy when saving */
   public getPendingOperations(): Operation[] {
     return this.#companion.getPendingOperations();
+  }
+
+  /** Returns a map of list expansions changes to be made when saving*/
+  public getPendingExpansionsDelta(): Map<string, boolean> {
+    return this.#companion.getPendingExpansionsDelta();
   }
 
   /** Returns true if there are unsaved changes */
@@ -172,6 +192,12 @@ export class List {
     return this.#companion.shareMap.get(this.id)!;
   }
 
+  private get idPrefix(): string {
+    const id = this.data.id;
+    const hyphenIndex = id.indexOf("-");
+    return hyphenIndex === -1 ? id : id.slice(0, hyphenIndex);
+  }
+
   /** List name */
   public get name(): string {
     return this.data.name;
@@ -203,6 +229,11 @@ export class List {
   /** True if the list is a mirror of another list */
   public get isMirror(): boolean {
     return this.source.isMirrorRoot;
+  }
+
+  /** True if the list is expanded */
+  public get isExpanded(): boolean {
+    return this.#companion.expandedProjects.has(this.idPrefix);
   }
 
   /** ID of mirrored list, if this list is a mirror; otherwise undefined */
@@ -529,6 +560,26 @@ export class List {
         previous_last_modified_by: null,
       },
     });
+  }
+
+  /**
+   * Expands the list
+   */
+  public expand(): void {
+    if (!this.isExpanded) {
+      this.#companion.expandedProjects.add(this.idPrefix);
+      this.#companion.addExpansionDelta(this.idPrefix, true);
+    }
+  }
+
+  /**
+   * Collapses the list
+   */
+  public collapse(): void {
+    if (this.isExpanded) {
+      this.#companion.expandedProjects.delete(this.idPrefix);
+      this.#companion.addExpansionDelta(this.idPrefix, false);
+    }
   }
 
   /**

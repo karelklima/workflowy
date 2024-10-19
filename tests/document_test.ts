@@ -361,3 +361,37 @@ Deno.test("WorkFlowy Document / Sharing / Unshare URL of list shared via email a
     undo_data: {},
   });
 });
+
+Deno.test("WorkFlowy Document / Expand list", () => {
+  const document = mockDocument();
+
+  const list = document.getList("12f62eec-754c-b677-b683-7dd448dc49ac");
+
+  assertEquals(list.isExpanded, false);
+
+  list.expand();
+
+  assertEquals(list.isExpanded, true);
+
+  const expandedDeltas = document.getPendingExpansionsDelta();
+  assertEquals(expandedDeltas.size, 1);
+  assertEquals(expandedDeltas.has("12f62eec"), true);
+  assertEquals(expandedDeltas.get("12f62eec"), true);
+});
+
+Deno.test("WorkFlowy Document / Collapse list", () => {
+  const document = mockDocument();
+
+  const list = document.getList("de843e0e-2d25-a812-1415-6ed31ae618f4");
+
+  assertEquals(list.isExpanded, true);
+
+  list.collapse();
+
+  assertEquals(list.isExpanded, false);
+
+  const expandedDeltas = document.getPendingExpansionsDelta();
+  assertEquals(expandedDeltas.size, 1);
+  assertEquals(expandedDeltas.has("de843e0e"), true);
+  assertEquals(expandedDeltas.get("de843e0e"), false);
+});

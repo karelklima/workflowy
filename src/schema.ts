@@ -76,6 +76,7 @@ export const TreeDataSchema = z.object({
     })),
   ),
   shared_projects: z.record(TreeItemShareInfoSchema),
+  server_expanded_projects_list: z.array(z.string()).default([]),
 });
 
 export type TreeData = z.infer<typeof TreeDataSchema>;
