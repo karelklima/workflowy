@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "8960ce1b-e5b5-4aff-3303-50577f20e76b",
+      "nm": "List shared via email",
+      "ct": 45707709,
+      "pr": 525,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45708060
+    },
+    {
+      "id": "68e27b97-4444-77c6-f6e8-22c1e94ab431",
+      "nm": "Normal second list",
+      "ct": 158394,
+      "pr": 400,
+      "prnt": "8960ce1b-e5b5-4aff-3303-50577f20e76b",
+      "metadata": {},
+      "lm": 158394
+    }
+  ],
+  "shared_projects": {
+    "8960ce1b-e5b5-4aff-3303-50577f20e76b": {
+      "share_id": "NnjJ.lybhWrZBRX",
+      "email_shared_info": {
+        "emails": [
+          {
+            "email": "example@example.com",
+            "access_token": "L2RdOGpOND",
+            "write_permission": true,
+            "permission_level": 3
+          }
+        ]
+      }
+    }
+  },
+  "most_recent_operation_transaction_id": "1160300075",
+  "server_expanded_projects_list": []
+}

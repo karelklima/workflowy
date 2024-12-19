@@ -22,6 +22,7 @@ class Companion {
     public readonly client: Client,
     public readonly itemMap: Map<string, TreeItemWithChildren>,
     public readonly shareMap: Map<string, TreeItemShareInfo>,
+    public readonly shareIdMap: Map<string, string>,
     public readonly expandedProjects: Set<string>,
     public readonly initializationData: InitializationData,
   ) {}
@@ -78,6 +79,7 @@ export class Document {
     client: Client,
     data: TreeData,
     initializationData: InitializationData,
+    sharedTrees: Record<string, TreeData> = {},
   ) {
     const itemMap = new Map<string, TreeItemWithChildren>();
 
@@ -109,10 +111,42 @@ export class Document {
 
     const expandedProjects = new Set(data.server_expanded_projects_list);
 
+    const shareIdMap = new Map<string, string>();
+
+    for (const [shareId, sharedTree] of Object.entries(sharedTrees)) {
+      sharedTree.items.sort((a, b) => Math.sign(a.priority - b.priority));
+
+      for (const item of sharedTree.items) {
+        if (item.parentId !== "None") {
+          const p = getItem(item.parentId);
+          p.children.push(item.id);
+        } else {
+          shareIdMap.set(shareId, item.id);
+        }
+        const t = getItem(item.id);
+        itemMap.set(item.id, { ...t, ...item });
+      }
+
+      for (
+        const [id, shareInfo] of Object.entries(sharedTree.shared_projects)
+      ) {
+        shareMap.set(id, shareInfo);
+      }
+
+      for (const id of sharedTree.server_expanded_projects_list) {
+        expandedProjects.add(id);
+      }
+    }
+
+    for (const [id, shareInfo] of shareMap) {
+      shareIdMap.set(shareInfo.shareId, id);
+    }
+
     this.#companion = new Companion(
       client,
       itemMap,
       shareMap,
+      shareIdMap,
       expandedProjects,
       initializationData,
     );
@@ -176,6 +210,13 @@ export class List {
     if (source.isMirrorRoot) {
       return this.#companion.itemMap.get(source.originalId!)!;
     }
+    if (source.shareId !== undefined) {
+      const proxyId = this.#companion.shareIdMap.get(source.shareId);
+      if (proxyId === undefined) {
+        throw new Error(`Shared list not found: ${source.shareId}`);
+      }
+      return this.#companion.itemMap.get(proxyId!)!;
+    }
     return source;
   }
 
@@ -183,6 +224,7 @@ export class List {
     const id = this.data.id;
     if (!this.#companion.shareMap.has(id)) {
       this.#companion.shareMap.set(id, {
+        shareId: "none",
         isSharedViaUrl: false,
         urlAccessToken: undefined,
         urlPermissionLevel: undefined,
@@ -335,6 +377,7 @@ export class List {
       lastModified: this.#companion.getNow(),
       originalId: undefined,
       isMirrorRoot: false,
+      shareId: undefined,
       children: [],
     });
 

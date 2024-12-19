@@ -38,6 +38,7 @@ const TreeItemShareInfoSchema = z.object({
     })),
   }).optional(),
 }).transform((i) => ({
+  shareId: i.share_id,
   isSharedViaUrl: i.url_shared_info !== undefined,
   urlAccessToken: i.url_shared_info?.access_token,
   urlPermissionLevel: i.url_shared_info?.permission_level,
@@ -63,6 +64,7 @@ export const TreeDataSchema = z.object({
           isMirrorRoot: z.boolean().optional(),
         }).optional(),
       }),
+      as: z.string().optional(),
     }).transform((i) => ({
       id: i.id,
       name: i.nm,
@@ -73,6 +75,7 @@ export const TreeDataSchema = z.object({
       lastModified: i.lm,
       originalId: i.metadata?.mirror?.originalId,
       isMirrorRoot: i.metadata?.mirror?.isMirrorRoot === true,
+      shareId: i.as,
     })),
   ),
   shared_projects: z.record(TreeItemShareInfoSchema),

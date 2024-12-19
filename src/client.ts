@@ -17,6 +17,7 @@ const LOGIN_URL = `${WORKFLOWY_URL}/ajax_login`;
 const INITIALIZATION_DATA_URL =
   `${WORKFLOWY_URL}/get_initialization_data?client_version=21&client_version_v2=28&no_root_children=1`;
 const TREE_DATA_URL = `${WORKFLOWY_URL}/get_tree_data/`;
+const SHARED_TREE_DATA_URL = `${WORKFLOWY_URL}/get_tree_data/?share_id=`;
 const PUSH_AND_POLL_URL = `${WORKFLOWY_URL}/push_and_poll`;
 const CLIENT_VERSION = "21";
 const SESSION_COOKIE_NAME = `sessionid`;
@@ -193,6 +194,19 @@ export class Client {
    */
   public async getTreeData(): Promise<TreeData> {
     const json = await this.#authenticatedFetch(TREE_DATA_URL);
+    const data = TreeDataSchema.parse(json);
+    this.#lastTransactionId = data.most_recent_operation_transaction_id;
+    return data;
+  }
+
+  /**
+   * Fetches the shared WorkFlowy subdocument
+   *
+   * Queries `workflowy.com/get_tree_data/?share_id=` endpoint
+   * @returns List of all items in WorkFlowy shared document
+   */
+  public async getSharedTreeData(shareId: string): Promise<TreeData> {
+    const json = await this.#authenticatedFetch(SHARED_TREE_DATA_URL + shareId);
     const data = TreeDataSchema.parse(json);
     this.#lastTransactionId = data.most_recent_operation_transaction_id;
     return data;

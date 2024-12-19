@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "aaba6df4-cde1-3322-96cd-957fc76123e8",
+      "nm": "List shared via URL",
+      "ct": 45772460,
+      "pr": 538,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45772507
+    },
+    {
+      "id": "12f62eec-754c-b677-b683-7dd448dc49ac",
+      "nm": "Normal list",
+      "ct": 148,
+      "pr": 200,
+      "prnt": "aaba6df4-cde1-3322-96cd-957fc76123e8",
+      "metadata": {},
+      "lm": 155459
+    },
+    {
+      "id": "68e27b97-4444-77c6-f6e8-22c1e94ab437",
+      "nm": "",
+      "ct": 150,
+      "pr": 300,
+      "prnt": "aaba6df4-cde1-3322-96cd-957fc76123e8",
+      "metadata": {},
+      "lm": 157519,
+      "as": "NnjJ.lybhWrZBRX"
+    }
+  ],
+  "shared_projects": {
+    "aaba6df4-cde1-3322-96cd-957fc76123e8": {
+      "share_id": "NnjJ.tUQQvYjgkX",
+      "url_shared_info": {
+        "write_permission": false,
+        "permission_level": 1,
+        "access_token": "plUzlWcMHcwbR3wZ"
+      }
+    }
+  },
+  "most_recent_operation_transaction_id": "1160300075",
+  "server_expanded_projects_list": []
+}
