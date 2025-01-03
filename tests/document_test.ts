@@ -7,7 +7,11 @@ import { assertEquals, assertObjectMatch } from "./test_deps.ts";
 
 import { Document } from "../src/document.ts";
 import type { Client } from "../src/client.ts";
-import { InitializationDataSchema, TreeDataSchema } from "../src/schema.ts";
+import {
+  InitializationDataSchema,
+  ROOT,
+  TreeDataSchema,
+} from "../src/schema.ts";
 import { PermissionLevel } from "../src/share.ts";
 
 const mockClient = () => ({} as unknown as Client);
@@ -22,7 +26,7 @@ Deno.test("WorkFlowy Document / Load tree", () => {
   const document = mockDocument();
 
   const home = document.root;
-  assertEquals(home.id, "None");
+  assertEquals(home.id, ROOT);
   assertEquals(home.items.length, 7);
 
   assertEquals(home.items[0].name, "List with sublist");
@@ -70,17 +74,17 @@ Deno.test("WorkFlowy Document / Create list", () => {
 
   const list = document.root.createList(1);
 
-  assertEquals(list.parent.id, "None");
+  assertEquals(list.parent.id, ROOT);
   assertEquals(list.priority, 1);
   assertEquals(document.root.itemIds.length, 8);
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 1);
   assertObjectMatch(ops[0], {
     type: "create",
     data: {
       projectid: list.id,
-      parentid: "None",
+      parentid: ROOT,
       priority: 1,
     },
   });
@@ -96,7 +100,7 @@ Deno.test("WorkFlowy Document / Edit list", () => {
   assertEquals(document.root.items[1].name, "New name");
   assertEquals(document.root.items[1].note, "New description");
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 2);
   assertObjectMatch(ops[0], {
     type: "edit",
@@ -130,7 +134,7 @@ Deno.test("WorkFlowy Document / Edit mirror", () => {
   assertEquals(document.root.items[4].name, "New name");
   assertEquals(document.root.items[3].name, "New name");
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 1);
   assertObjectMatch(ops[0], {
     type: "edit",
@@ -161,7 +165,7 @@ Deno.test("WorkFlowy Document / Move list", () => {
   assertEquals(target.itemIds[0], list.id);
   assertEquals(target.items.length, 2);
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 1);
   assertObjectMatch(ops[0], {
     type: "move",
@@ -190,7 +194,7 @@ Deno.test("WorkFlowy Document / Delete list", () => {
   assertEquals(document.root.items.length, 6);
   assertEquals(document.root.items[1].name, "List completed");
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 1);
   assertObjectMatch(ops[0], {
     type: "delete",
@@ -218,7 +222,7 @@ Deno.test("WorkFlowy Document / Sharing / Share unshared list via URL", () => {
   assertEquals(list.sharedUrl, url);
   assertEquals(list.sharedUrlPermissionLevel, PermissionLevel.EditAndComment);
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 2);
   assertObjectMatch(ops[0], {
     type: "share",
@@ -255,7 +259,7 @@ Deno.test("WorkFlowy Document / Sharing / Share shared list via URL", () => {
   assertEquals(list.sharedUrl, "https://workflowy.com/s/plUzlWcMHcwbR3wZ");
   assertEquals(list.sharedUrlPermissionLevel, PermissionLevel.EditAndComment);
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 1);
   assertObjectMatch(ops[0], {
     type: "add_shared_url",
@@ -285,8 +289,8 @@ Deno.test("WorkFlowy Document / Sharing / Unshare URL of unshared list", () => {
   assertEquals(list.sharedUrl, undefined);
   assertEquals(list.sharedUrlPermissionLevel, PermissionLevel.None);
 
-  const ops = document.getPendingOperations();
-  assertEquals(ops.length, 0);
+  const ops = document.getPendingOperations()[ROOT];
+  assertEquals(ops, undefined);
 });
 
 Deno.test("WorkFlowy Document / Sharing / Unshare URL of list shared via URL", () => {
@@ -306,7 +310,7 @@ Deno.test("WorkFlowy Document / Sharing / Unshare URL of list shared via URL", (
   assertEquals(list.sharedUrl, undefined);
   assertEquals(list.sharedUrlPermissionLevel, PermissionLevel.None);
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 2);
   assertObjectMatch(ops[0], {
     type: "remove_shared_url",
@@ -342,7 +346,7 @@ Deno.test("WorkFlowy Document / Sharing / Unshare URL of list shared via email a
   assertEquals(list.sharedUrl, undefined);
   assertEquals(list.sharedUrlPermissionLevel, PermissionLevel.None);
 
-  const ops = document.getPendingOperations();
+  const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 2);
   assertObjectMatch(ops[0], {
     type: "add_shared_url",

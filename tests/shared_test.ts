@@ -1,4 +1,4 @@
-import mockInitializationData from "./mocks/get_initialization_data.json" with {
+import mockInitializationData from "./mocks/get_initialization_data_shared.json" with {
   type: "json",
 };
 import mockTreeDataMain from "./mocks/get_tree_data_shared_main.json" with {
@@ -15,7 +15,11 @@ import { assertEquals } from "./test_deps.ts";
 
 import { Document } from "../src/document.ts";
 import type { Client } from "../src/client.ts";
-import { InitializationDataSchema, TreeDataSchema } from "../src/schema.ts";
+import {
+  InitializationDataSchema,
+  ROOT,
+  TreeDataSchema,
+} from "../src/schema.ts";
 
 const mockClient = () => ({} as unknown as Client);
 const mockTree = () => TreeDataSchema.parse(mockTreeDataMain);
@@ -42,7 +46,7 @@ const mockDocument = () =>
     mockSharedTrees(),
   );
 
-Deno.test("WorkFlowy Shared / X", () => {
+Deno.test("WorkFlowy Shared / Read", () => {
   const document = mockDocument();
 
   const firstShared = document.items[1];
@@ -57,4 +61,21 @@ Deno.test("WorkFlowy Shared / X", () => {
   assertEquals(secondShared.name, "List shared via email");
   assertEquals(secondShared.items.length, 1);
   assertEquals(secondShared.items[0].name, "Normal second list");
+});
+
+Deno.test("WorkFlowy Shared / Write", () => {
+  const document = mockDocument();
+
+  const firstShared = document.items[1];
+  const secondShared = firstShared.items[1];
+
+  const firstNewSharedList = firstShared.createList(0);
+  firstNewSharedList.setName("New first shared list");
+
+  const secondNewSharedList = secondShared.createList(0);
+  secondNewSharedList.setName("New second shared list");
+
+  const ops = document.getPendingOperations();
+  assertEquals(Object.keys(ops).length, 2);
+  assertEquals(ops[ROOT], undefined);
 });

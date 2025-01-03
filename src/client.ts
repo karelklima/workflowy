@@ -8,6 +8,7 @@ import {
   type Operation,
   type OperationResult,
   OperationResultSchema,
+  ROOT,
   type TreeData,
   TreeDataSchema,
 } from "./schema.ts";
@@ -41,7 +42,7 @@ const SESSION_COOKIE_NAME = `sessionid`;
 export class Client {
   #sessionHeaders = new Headers();
   #clientId: string;
-  #lastTransactionId: string | undefined;
+  #lastTransactionIds: Record<string, string> = {};
 
   #username: string;
   #password: string;
@@ -114,13 +115,29 @@ export class Client {
     return response.json();
   }
 
-  async #getLastTransactionId() {
-    if (this.#lastTransactionId === undefined) {
+  async #getLastTransactionId(treeId: string) {
+    if (this.#lastTransactionIds[ROOT] === undefined) {
       const initializationData = await this.getInitializationData();
-      this.#lastTransactionId =
-        initializationData.initialMostRecentOperationTransactionId;
+      this.#lastTransactionIds[ROOT] = initializationData.mainProjectTreeInfo
+        .initialMostRecentOperationTransactionId;
+      for (const treeInfo of initializationData.auxiliaryProjectTreeInfos) {
+        this.#lastTransactionIds[treeInfo.shareId] =
+          treeInfo.initialMostRecentOperationTransactionId;
+      }
     }
-    return this.#lastTransactionId;
+    if (this.#lastTransactionIds[treeId] === undefined) {
+      throw Error(`Last transaction ID of tree ${treeId} not found.`);
+    }
+    return this.#lastTransactionIds[treeId];
+  }
+
+  #setLastTransactionId(treeId: string, transactionId: string) {
+    if (this.#lastTransactionIds === undefined) {
+      throw Error(
+        "WorkFlowy client not initialized properly, transaction IDs missing.",
+      );
+    }
+    this.#lastTransactionIds![treeId] = transactionId;
   }
 
   /**
@@ -195,7 +212,10 @@ export class Client {
   public async getTreeData(): Promise<TreeData> {
     const json = await this.#authenticatedFetch(TREE_DATA_URL);
     const data = TreeDataSchema.parse(json);
-    this.#lastTransactionId = data.most_recent_operation_transaction_id;
+    this.#setLastTransactionId(
+      ROOT,
+      data.most_recent_operation_transaction_id,
+    );
     return data;
   }
 
@@ -208,7 +228,10 @@ export class Client {
   public async getSharedTreeData(shareId: string): Promise<TreeData> {
     const json = await this.#authenticatedFetch(SHARED_TREE_DATA_URL + shareId);
     const data = TreeDataSchema.parse(json);
-    this.#lastTransactionId = data.most_recent_operation_transaction_id;
+    this.#setLastTransactionId(
+      shareId,
+      data.most_recent_operation_transaction_id,
+    );
     return data;
   }
 
@@ -221,28 +244,35 @@ export class Client {
    * @returns List of operations ran on WorkFlowy since last push and pull
    */
   public async pushAndPull(
-    operations: Operation[],
+    operations: Operation[] | Record<string, Operation[]>,
     expansionsDelta: Record<string, boolean> = {},
   ): Promise<OperationResult> {
+    const operationMap = Array.isArray(operations)
+      ? { Root: operations }
+      : operations;
     const initializationData = await this.getInitializationData();
     const time = Math.floor(Date.now() / 1000);
     const timestamp = time -
-      initializationData.dateJoinedTimestampInSeconds;
-    const lastTransactionId = await this.#getLastTransactionId();
+      initializationData.mainProjectTreeInfo.dateJoinedTimestampInSeconds;
     const push_poll_id = crypto.randomUUID().substring(0, 8);
 
-    const ops = operations.map((operation) => ({
-      ...operation,
-      client_timestamp: timestamp,
-    }));
+    const payload = [];
 
-    const push_poll_data = JSON.stringify([
-      {
+    for (const treeId of Object.keys(operationMap)) {
+      const lastTransactionId = await this.#getLastTransactionId(treeId);
+      const ops = operationMap[treeId].map((operation) => ({
+        ...operation,
+        client_timestamp: timestamp,
+      }));
+      payload.push({
         most_recent_operation_transaction_id: lastTransactionId,
         operations: ops,
-        project_expansions_delta: expansionsDelta,
-      },
-    ]);
+        share_id: treeId === ROOT ? undefined : treeId,
+        project_expansions_delta: expansionsDelta[treeId],
+      });
+    }
+
+    const push_poll_data = JSON.stringify(payload);
 
     const formData = new FormData();
     formData.append("client_id", this.#clientId);
@@ -251,7 +281,7 @@ export class Client {
     formData.append("push_poll_data", push_poll_data);
     formData.append(
       "crosscheck_user_id",
-      initializationData.ownerId.toString(),
+      initializationData.mainProjectTreeInfo.ownerId.toString(),
     );
 
     const json = await this.#authenticatedFetch(PUSH_AND_POLL_URL, {
@@ -261,8 +291,12 @@ export class Client {
 
     const operationResult = OperationResultSchema.parse(json);
 
-    this.#lastTransactionId =
-      operationResult.new_most_recent_operation_transaction_id;
+    for (const treeResult of operationResult) {
+      this.#setLastTransactionId(
+        treeResult.share_id,
+        treeResult.new_most_recent_operation_transaction_id,
+      );
+    }
     return operationResult;
   }
 

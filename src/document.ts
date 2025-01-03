@@ -1,10 +1,11 @@
 import type { Client } from "./client.ts";
-import type {
-  InitializationData,
-  Operation,
-  TreeData,
-  TreeItemShareInfo,
-  TreeItemWithChildren,
+import {
+  type InitializationData,
+  type Operation,
+  ROOT,
+  type TreeData,
+  type TreeItemShareInfo,
+  type TreeItemWithChildren,
 } from "./schema.ts";
 import { toJson, toOpml, toPlainText, toString } from "./export.ts";
 import {
@@ -16,7 +17,7 @@ import {
 } from "./share.ts";
 
 class Companion {
-  private operations: Operation[] = [];
+  private operations: Record<string, Operation[]> = {};
   private expansionsDelta: Map<string, boolean> = new Map();
   constructor(
     public readonly client: Client,
@@ -35,8 +36,11 @@ class Companion {
     return this.expansionsDelta;
   }
 
-  public addOperation(operation: Operation): void {
-    this.operations.push(operation);
+  public addOperation(treeId: string, operation: Operation): void {
+    if (!this.operations[treeId]) {
+      this.operations[treeId] = [];
+    }
+    this.operations[treeId].push(operation);
   }
 
   public addExpansionDelta(id: string, expanded: boolean) {
@@ -44,29 +48,36 @@ class Companion {
   }
 
   public isDirty() {
-    return this.operations.length > 0 || this.expansionsDelta.size > 0;
+    return Object.keys(this.operations).length > 0 ||
+      this.expansionsDelta.size > 0;
   }
 
   public async save(): Promise<void> {
     const ops = this.operations;
-    this.operations = []; // purge
+    this.operations = {}; // purge
     const expansionsDelta = Object.fromEntries(this.expansionsDelta);
     this.expansionsDelta = new Map(); // purge
     const operationResult = await this.client.pushAndPull(ops, expansionsDelta);
 
-    if (operationResult.error_encountered_in_remote_operations) {
+    const errorEncountered = operationResult.some((r) =>
+      r.error_encountered_in_remote_operations
+    );
+
+    if (errorEncountered) {
       throw new Error("Error encountered in remote WorkFlowy operations");
     }
   }
 
   public getRealTimestamp(timestamp: number): Date {
-    const u = timestamp + this.initializationData.dateJoinedTimestampInSeconds;
+    const u = timestamp +
+      this.initializationData.mainProjectTreeInfo.dateJoinedTimestampInSeconds;
     return new Date(u * 1000);
   }
 
   public getNow(): number {
     const timeInSeconds = Math.floor(Date.now() / 1000);
-    return timeInSeconds - this.initializationData.dateJoinedTimestampInSeconds;
+    return timeInSeconds -
+      this.initializationData.mainProjectTreeInfo.dateJoinedTimestampInSeconds;
   }
 }
 
@@ -83,11 +94,15 @@ export class Document {
   ) {
     const itemMap = new Map<string, TreeItemWithChildren>();
 
-    const getItem = (id: string) => {
+    const getItem = (id: string, treeId: string) => {
       if (itemMap.has(id)) {
         return itemMap.get(id)!;
       }
-      const newItem = { id, children: [] } as unknown as TreeItemWithChildren;
+      const newItem = {
+        id,
+        children: [],
+        treeId,
+      } as unknown as TreeItemWithChildren;
       itemMap.set(id, newItem);
       return newItem;
     };
@@ -95,13 +110,13 @@ export class Document {
     data.items.sort((a, b) => Math.sign(a.priority - b.priority));
 
     for (const item of data.items) {
-      const p = getItem(item.parentId);
+      const p = getItem(item.parentId, ROOT);
       p.children.push(item.id);
-      const t = getItem(item.id);
+      const t = getItem(item.id, ROOT);
       itemMap.set(item.id, { ...t, ...item });
     }
 
-    itemMap.get("None")!.name = "Home";
+    itemMap.get(ROOT)!.name = "Home";
 
     const shareMap = new Map<string, TreeItemShareInfo>();
 
@@ -117,13 +132,13 @@ export class Document {
       sharedTree.items.sort((a, b) => Math.sign(a.priority - b.priority));
 
       for (const item of sharedTree.items) {
-        if (item.parentId !== "None") {
-          const p = getItem(item.parentId);
+        if (item.parentId !== ROOT) {
+          const p = getItem(item.parentId, shareId);
           p.children.push(item.id);
         } else {
           shareIdMap.set(shareId, item.id);
         }
-        const t = getItem(item.id);
+        const t = getItem(item.id, shareId);
         itemMap.set(item.id, { ...t, ...item });
       }
 
@@ -150,7 +165,7 @@ export class Document {
       expandedProjects,
       initializationData,
     );
-    this.root = this.getList("None");
+    this.root = this.getList(ROOT);
   }
 
   /** Lists in the root of WorkFlowy */
@@ -168,7 +183,7 @@ export class Document {
   }
 
   /** Returns a list of changes to be made to WorkFlowy when saving */
-  public getPendingOperations(): Operation[] {
+  public getPendingOperations(): Record<string, Operation[]> {
     return this.#companion.getPendingOperations();
   }
 
@@ -379,13 +394,14 @@ export class List {
       isMirrorRoot: false,
       shareId: undefined,
       children: [],
+      treeId: this.data.treeId,
     });
 
     this.itemIds.splice(priority, 0, newId);
 
-    const parentid = this.id === "home" ? "None" : this.id;
+    const parentid = this.id === "home" ? ROOT : this.id;
 
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "create",
       data: {
         projectid: newId,
@@ -413,7 +429,7 @@ export class List {
    * @returns {List} this
    */
   public setName(name: string): List {
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "edit",
       data: {
         projectid: this.data.id,
@@ -434,7 +450,7 @@ export class List {
    * @returns {List} this
    */
   public setNote(note: string): List {
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "edit",
       data: {
         projectid: this.data.id,
@@ -463,7 +479,7 @@ export class List {
     }
     priority = Math.max(0, Math.min(priority, target.itemIds.length));
 
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "move",
       data: {
         projectid: this.id,
@@ -487,7 +503,7 @@ export class List {
    * Deletes this list from WorkFlowy. Use with caution!
    */
   public delete() {
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "delete",
       data: {
         projectid: this.id,
@@ -526,7 +542,7 @@ export class List {
     }
 
     if (!this.isSharedViaUrl && !this.isSharedViaEmail) {
-      this.#companion.addOperation({
+      this.#companion.addOperation(this.data.treeId, {
         type: "share",
         data: {
           projectid: this.id,
@@ -548,7 +564,7 @@ export class List {
       permissionLevel,
     );
 
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "add_shared_url",
       data: {
         projectid: this.id,
@@ -573,7 +589,7 @@ export class List {
       return;
     }
 
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "remove_shared_url",
       data: {
         projectid: this.id,
@@ -593,7 +609,7 @@ export class List {
       return;
     }
 
-    this.#companion.addOperation({
+    this.#companion.addOperation(this.data.treeId, {
       type: "unshare",
       data: {
         projectid: this.id,

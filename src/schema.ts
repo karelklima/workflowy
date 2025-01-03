@@ -1,5 +1,7 @@
 import { z } from "../deps.ts";
 
+export const ROOT = "Root";
+
 export const LoginResultSchema = z.object({
   success: z.boolean().optional(),
   errors: z.object({
@@ -12,15 +14,19 @@ export const LoginResultSchema = z.object({
 
 export type LoginResult = z.infer<typeof LoginResultSchema>;
 
+const TreeInfoSchema = z.object({
+  dateJoinedTimestampInSeconds: z.number(),
+  initialMostRecentOperationTransactionId: z.string(),
+  ownerId: z.number(),
+  shareId: z.string().default(ROOT),
+});
+
 export const InitializationDataSchema = z.object({
   projectTreeData: z.object({
-    mainProjectTreeInfo: z.object({
-      dateJoinedTimestampInSeconds: z.number(),
-      initialMostRecentOperationTransactionId: z.string(),
-      ownerId: z.number(),
-    }),
+    auxiliaryProjectTreeInfos: z.array(TreeInfoSchema),
+    mainProjectTreeInfo: TreeInfoSchema,
   }),
-}).transform((i) => i.projectTreeData.mainProjectTreeInfo);
+}).transform((i) => i.projectTreeData);
 
 export type InitializationData = z.infer<typeof InitializationDataSchema>;
 
@@ -69,7 +75,7 @@ export const TreeDataSchema = z.object({
       id: i.id,
       name: i.nm,
       note: i.no,
-      parentId: i.prnt !== null ? i.prnt : "None",
+      parentId: i.prnt !== null ? i.prnt : ROOT,
       priority: i.pr,
       completed: i.cp,
       lastModified: i.lm,
@@ -88,6 +94,7 @@ export type TreeItem = TreeData["items"][number];
 
 export type TreeItemWithChildren = TreeItem & {
   children: string[];
+  treeId: string;
 };
 
 export const OperationSchema = z.object({
@@ -126,7 +133,8 @@ export const OperationResultSchema = z.object({
     error_encountered_in_remote_operations: z.boolean(),
     new_most_recent_operation_transaction_id: z.string(),
     new_polling_interval_in_ms: z.number(),
+    share_id: z.string().default(ROOT),
   })),
-}).transform((data) => data.results[0]);
+}).transform((data) => data.results);
 
 export type OperationResult = z.infer<typeof OperationResultSchema>;

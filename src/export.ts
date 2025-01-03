@@ -1,8 +1,9 @@
 import type { List } from "./document.ts";
+import { ROOT } from "./schema.ts";
 
 export function toString(list: List, omitHeader = false, indent = ""): string {
   const text: string[] = [];
-  const printHeader = !omitHeader && list.id !== "None";
+  const printHeader = !omitHeader && list.id !== ROOT;
   if (printHeader) {
     text.push(indent + "- " + list.name);
     if (list.note) {
@@ -30,7 +31,7 @@ export function toPlainText(
     toPlainText(sublist, false, nextIndent)
   );
 
-  if (list.id === "None") {
+  if (list.id === ROOT) {
     return childrenTextChunks.join("\n");
   }
 
@@ -88,7 +89,7 @@ export function toOpml(list: List, top = true): string {
     list.note ? ` _note="${escape(list.note)}"` : "",
   ].join("");
 
-  const content = list.id === "None"
+  const content = list.id === ROOT
     ? children
     : children === ""
     ? `<outline${attributes} />`
