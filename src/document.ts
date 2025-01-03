@@ -22,11 +22,16 @@ class Companion {
   constructor(
     public readonly client: Client,
     public readonly itemMap: Map<string, TreeItemWithChildren>,
+    public readonly shortIdMap = new Map<string, string>(),
     public readonly shareMap: Map<string, TreeItemShareInfo>,
     public readonly shareIdMap: Map<string, string>,
     public readonly expandedProjects: Set<string>,
     public readonly initializationData: InitializationData,
   ) {}
+
+  public resolveId(id: string): string {
+    return this.shortIdMap.has(id) ? this.shortIdMap.get(id)! : id;
+  }
 
   public getPendingOperations() {
     return this.operations;
@@ -93,11 +98,14 @@ export class Document {
     sharedTrees: Record<string, TreeData> = {},
   ) {
     const itemMap = new Map<string, TreeItemWithChildren>();
+    const shortIdMap = new Map<string, string>();
 
     const getItem = (id: string, treeId: string) => {
       if (itemMap.has(id)) {
         return itemMap.get(id)!;
       }
+      const shortId = id.split("-").pop()!;
+      shortIdMap.set(shortId, id);
       const newItem = {
         id,
         children: [],
@@ -160,6 +168,7 @@ export class Document {
     this.#companion = new Companion(
       client,
       itemMap,
+      shortIdMap,
       shareMap,
       shareIdMap,
       expandedProjects,
@@ -174,12 +183,14 @@ export class Document {
   }
 
   /**
-   * Returns a List specified by ID. Make sure that the ID exists.
+   * Returns a List specified by ID or short ID. Make sure that the ID exists.
+   * The short ID is the part of ID that is visible in Workflowy URLs.
    * @param id ID of the list to get
    * @returns A list instance with the particular ID
    */
   public getList(id: string) {
-    return new List(id, this.#companion);
+    const resolvedId = this.#companion.resolveId(id);
+    return new List(resolvedId, this.#companion);
   }
 
   /** Returns a list of changes to be made to WorkFlowy when saving */
@@ -397,6 +408,8 @@ export class List {
       treeId: this.data.treeId,
     });
 
+    this.#companion.shortIdMap.set(newId.split("-").pop()!, newId);
+
     this.itemIds.splice(priority, 0, newId);
 
     const parentid = this.id === "home" ? ROOT : this.id;
@@ -516,6 +529,8 @@ export class List {
       },
     });
     this.parent.itemIds.splice(this.priority, 1);
+    this.#companion.itemMap.delete(this.id);
+    this.#companion.shortIdMap.delete(this.id.split("-").pop()!);
   }
 
   /**

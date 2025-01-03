@@ -69,6 +69,14 @@ Deno.test("WorkFlowy Document / Load tree", () => {
   assertEquals(home.items[6].isCompleted, false);
 });
 
+Deno.test("WorkFlowy Document / Get list by short ID", () => {
+  const document = mockDocument();
+
+  const list = document.getList("7dd448dc49ac");
+
+  assertEquals(list.id, "12f62eec-754c-b677-b683-7dd448dc49ac");
+});
+
 Deno.test("WorkFlowy Document / Create list", () => {
   const document = mockDocument();
 
