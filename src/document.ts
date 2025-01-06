@@ -480,6 +480,31 @@ export class List {
   }
 
   /**
+   * Completes the list
+   * @returns {List} this
+   */
+  public setCompleted(complete = true): List {
+    if (complete === this.isCompleted) {
+      return this;
+    }
+
+    this.#companion.addOperation(this.data.treeId, {
+      type: complete ? "complete" : "uncomplete",
+      data: {
+        projectid: this.data.id,
+      },
+      undo_data: {
+        previous_last_modified: this.data.lastModified,
+        previous_last_modified_by: null,
+        previous_completed: this.data.completed ?? false,
+      },
+    });
+
+    this.data.completed = complete ? this.#companion.getNow() : undefined;
+    return this;
+  }
+
+  /**
    * Moves this list to a different list
    *
    * @param {List} target New parent of the current list

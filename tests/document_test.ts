@@ -156,6 +156,50 @@ Deno.test("WorkFlowy Document / Edit mirror", () => {
   });
 });
 
+Deno.test("WorkFlowy Document / Complete list", () => {
+  const document = mockDocument();
+
+  const list = document.root.items[1];
+
+  list.setCompleted().setCompleted();
+
+  assertEquals(document.root.items[1].isCompleted, true);
+
+  const ops = document.getPendingOperations()[ROOT];
+  assertEquals(ops.length, 1);
+  assertObjectMatch(ops[0], {
+    type: "complete",
+    data: {
+      projectid: list.id,
+    },
+    undo_data: {
+      previous_completed: false,
+    },
+  });
+});
+
+Deno.test("WorkFlowy Document / Uncomplete list", () => {
+  const document = mockDocument();
+
+  const list = document.root.items[2];
+
+  list.setCompleted(false).setCompleted(false);
+
+  assertEquals(document.root.items[2].isCompleted, false);
+
+  const ops = document.getPendingOperations()[ROOT];
+  assertEquals(ops.length, 1);
+  assertObjectMatch(ops[0], {
+    type: "uncomplete",
+    data: {
+      projectid: list.id,
+    },
+    undo_data: {
+      previous_completed: 199,
+    },
+  });
+});
+
 Deno.test("WorkFlowy Document / Move list", () => {
   const document = mockDocument();
 
