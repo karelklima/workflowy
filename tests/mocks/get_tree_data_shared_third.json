@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "id": "daba6df4-cde1-3322-96cd-957fc76123e8",
+      "nm": "List shared via URL without access token",
+      "ct": 45772460,
+      "pr": 538,
+      "prnt": null,
+      "metadata": {},
+      "lm": 45772507
+    }
+  ],
+  "shared_projects": {
+    "daba6df4-cde1-3322-96cd-957fc76123e8": {
+      "share_id": "NnjJ.lybhWrZBRA",
+      "url_shared_info": {
+        "write_permission": false,
+        "permission_level": 1
+      }
+    }
+  },
+  "most_recent_operation_transaction_id": "1160300075",
+  "server_expanded_projects_list": []
+}

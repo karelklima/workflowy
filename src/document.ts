@@ -257,7 +257,7 @@ export class List {
         isSharedViaEmail: false,
       });
     }
-    return this.#companion.shareMap.get(this.id)!;
+    return this.#companion.shareMap.get(id)!;
   }
 
   private get idPrefix(): string {
@@ -342,7 +342,8 @@ export class List {
   /** Returns shared URL or undefined if the list is not shared */
   public get sharedUrl(): string | undefined {
     if (this.isSharedViaUrl) {
-      return createSharedUrl(this.shareData.urlAccessToken!);
+      const key = this.shareData.urlAccessToken ?? this.shareData.shareId;
+      return createSharedUrl(key);
     }
     return undefined;
   }

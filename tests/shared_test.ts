@@ -11,6 +11,10 @@ import mockTreeDataSecond from "./mocks/get_tree_data_shared_second.json" with {
   type: "json",
 };
 
+import mockTreeDataThird from "./mocks/get_tree_data_shared_third.json" with {
+  type: "json",
+};
+
 import { assertEquals } from "./test_deps.ts";
 
 import { Document } from "../src/document.ts";
@@ -32,9 +36,13 @@ const mockSharedTrees = () => {
   const second =
     mockTreeDataSecond.shared_projects["8960ce1b-e5b5-4aff-3303-50577f20e76b"]
       .share_id;
+  const third =
+    mockTreeDataThird.shared_projects["daba6df4-cde1-3322-96cd-957fc76123e8"]
+      .share_id;
   return {
     [first]: TreeDataSchema.parse(mockTreeDataFirst),
     [second]: TreeDataSchema.parse(mockTreeDataSecond),
+    [third]: TreeDataSchema.parse(mockTreeDataThird),
   };
 };
 
@@ -52,6 +60,11 @@ Deno.test("WorkFlowy Shared / Read", () => {
   const firstShared = document.items[1];
 
   assertEquals(firstShared.name, "List shared via URL");
+  assertEquals(firstShared.isSharedViaUrl, true);
+  assertEquals(
+    firstShared.sharedUrl,
+    "https://workflowy.com/s/plUzlWcMHcwbR3wZ",
+  );
 
   assertEquals(firstShared.items.length, 2);
   assertEquals(firstShared.items[0].name, "Normal list");
@@ -59,8 +72,17 @@ Deno.test("WorkFlowy Shared / Read", () => {
   const secondShared = firstShared.items[1];
 
   assertEquals(secondShared.name, "List shared via email");
-  assertEquals(secondShared.items.length, 1);
+  assertEquals(secondShared.items.length, 2);
   assertEquals(secondShared.items[0].name, "Normal second list");
+
+  const thirdShared = secondShared.items[1];
+
+  assertEquals(thirdShared.name, "List shared via URL without access token");
+  assertEquals(thirdShared.isSharedViaUrl, true);
+  assertEquals(
+    thirdShared.sharedUrl,
+    "https://workflowy.com/s/NnjJ.lybhWrZBRA",
+  );
 });
 
 Deno.test("WorkFlowy Shared / Write", () => {

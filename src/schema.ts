@@ -33,7 +33,7 @@ export type InitializationData = z.infer<typeof InitializationDataSchema>;
 const TreeItemShareInfoSchema = z.object({
   share_id: z.string(),
   url_shared_info: z.object({
-    access_token: z.string(),
+    access_token: z.string().optional(),
     permission_level: z.number(),
   }).optional(),
   email_shared_info: z.object({
