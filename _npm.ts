@@ -1,7 +1,7 @@
 /**
  * This script builds the NPM package from Deno source
  */
-import { build, emptyDir } from "jsr:@deno/dnt@^0.41.3";
+import { build, emptyDir } from "jsr:@deno/dnt@^0.42.1";
 
 await emptyDir("./npm");
 
