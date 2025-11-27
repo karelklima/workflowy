@@ -413,7 +413,7 @@ export class List {
 
     this.itemIds.splice(priority, 0, newId);
 
-    const parentid = this.id === "home" ? ROOT : this.id;
+    const parentid = this.id === ROOT ? "None" : this.id;
 
     this.#companion.addOperation(this.data.treeId, {
       type: "create",
