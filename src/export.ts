@@ -70,6 +70,9 @@ export function toJson(list: List): any {
     name: list.name,
     note: list.note,
     isCompleted: list.isCompleted,
+    createdAt: list.createdAt?.toISOString(),
+    lastModifiedAt: list.lastModifiedAt?.toISOString(),
+    completedAt: list.completedAt?.toISOString(),
     items: list.items.map((sublist) => toJson(sublist)),
   };
 }

@@ -276,9 +276,20 @@ export class List {
     return this.data.note || "";
   }
 
-  /** Date of last change */
-  public get lastModifiedAt(): Date {
-    return this.#companion.getRealTimestamp(this.data.lastModified);
+  /** Date of creation, or undefined if not available */
+  public get createdAt(): Date | undefined {
+    if (this.data.created !== undefined) {
+      return this.#companion.getRealTimestamp(this.data.created);
+    }
+    return undefined;
+  }
+
+  /** Date of last change, or undefined if not available */
+  public get lastModifiedAt(): Date | undefined {
+    if (this.data.lastModified !== undefined) {
+      return this.#companion.getRealTimestamp(this.data.lastModified);
+    }
+    return undefined;
   }
 
   /** Date of completion, or undefined if not completed */
@@ -413,7 +424,7 @@ export class List {
 
     this.itemIds.splice(priority, 0, newId);
 
-    const parentid = this.id === "home" ? ROOT : this.id;
+    const parentid = this.id === ROOT ? "None" : this.id;
 
     this.#companion.addOperation(this.data.treeId, {
       type: "create",

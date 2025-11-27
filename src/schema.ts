@@ -61,6 +61,7 @@ export const TreeDataSchema = z.object({
       prnt: z.string().or(z.null()),
       pr: z.number(),
       cp: z.number().optional(),
+      ct: z.number().optional(),
       lm: z.number(),
       metadata: z.object({
         mirror: z.object({
@@ -76,6 +77,7 @@ export const TreeDataSchema = z.object({
       parentId: i.prnt !== null ? i.prnt : ROOT,
       priority: i.pr,
       completed: i.cp,
+      created: i.ct,
       lastModified: i.lm,
       originalId: i.metadata?.mirror?.originalId,
       isMirrorRoot: i.metadata?.mirror?.isMirrorRoot === true,
