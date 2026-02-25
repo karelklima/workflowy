@@ -103,6 +103,25 @@
       "prnt": null,
       "metadata": {},
       "lm": 45708060
+    },
+    {
+      "id": "b1c2d3e4-f5a6-7890-abcd-ef1234567890",
+      "nm": "List with file attachment",
+      "ct": 45708061,
+      "pr": 600,
+      "prnt": null,
+      "metadata": {
+        "s3File": {
+          "fileName": "screenshot.png",
+          "fileType": "image/png",
+          "objectFolder": "ab/cd/ef",
+          "isAnimatedGIF": false,
+          "imageOriginalWidth": 1920,
+          "imageOriginalHeight": 1080,
+          "imageOriginalPixels": 2073600
+        }
+      },
+      "lm": 45708062
     }
   ],
   "shared_projects": {

@@ -27,7 +27,7 @@ Deno.test("WorkFlowy Document / Load tree", () => {
 
   const home = document.root;
   assertEquals(home.id, ROOT);
-  assertEquals(home.items.length, 7);
+  assertEquals(home.items.length, 8);
 
   assertEquals(home.items[0].name, "List with sublist");
   assertEquals(home.items[0].items[0].name, "One");
@@ -67,6 +67,13 @@ Deno.test("WorkFlowy Document / Load tree", () => {
   );
   assertEquals(home.items[6].sharedUrlPermissionLevel, PermissionLevel.View);
   assertEquals(home.items[6].isCompleted, false);
+
+  assertEquals(home.items[7].name, "List with file attachment");
+  assertEquals(home.items[7].hasFile, true);
+  assertEquals(home.items[7].file?.fileName, "screenshot.png");
+  assertEquals(home.items[7].file?.fileType, "image/png");
+  assertEquals(home.items[7].file?.imageOriginalWidth, 1920);
+  assertEquals(home.items[7].file?.imageOriginalHeight, 1080);
 });
 
 Deno.test("WorkFlowy Document / Get list by short ID", () => {
@@ -84,7 +91,7 @@ Deno.test("WorkFlowy Document / Create list", () => {
 
   assertEquals(list.parent.id, ROOT);
   assertEquals(list.priority, 1);
-  assertEquals(document.root.itemIds.length, 8);
+  assertEquals(document.root.itemIds.length, 9);
 
   const ops = document.getPendingOperations()[ROOT];
   assertEquals(ops.length, 1);
@@ -238,12 +245,12 @@ Deno.test("WorkFlowy Document / Delete list", () => {
 
   const list = document.root.items[1];
 
-  assertEquals(document.root.items.length, 7);
+  assertEquals(document.root.items.length, 8);
   assertEquals(document.root.items[1].name, "List with description");
 
   list.delete();
 
-  assertEquals(document.root.items.length, 6);
+  assertEquals(document.root.items.length, 7);
   assertEquals(document.root.items[1].name, "List completed");
 
   const ops = document.getPendingOperations()[ROOT];
@@ -450,4 +457,111 @@ Deno.test("WorkFlowy Document / Collapse list", () => {
   assertEquals(expandedDeltas.size, 1);
   assertEquals(expandedDeltas.has("de843e0e"), true);
   assertEquals(expandedDeltas.get("de843e0e"), false);
+});
+
+Deno.test("WorkFlowy Document / file attachment", () => {
+  const document = mockDocument();
+
+  const list = document.getList("b1c2d3e4-f5a6-7890-abcd-ef1234567890");
+
+  assertEquals(list.name, "List with file attachment");
+  assertEquals(list.hasFile, true);
+  assertEquals(list.file?.fileName, "screenshot.png");
+  assertEquals(list.file?.fileType, "image/png");
+  assertEquals(list.file?.objectFolder, "ab/cd/ef");
+  assertEquals(list.file?.isAnimatedGIF, false);
+  assertEquals(list.file?.imageOriginalWidth, 1920);
+  assertEquals(list.file?.imageOriginalHeight, 1080);
+  assertEquals(list.file?.imageOriginalPixels, 2073600);
+});
+
+Deno.test("WorkFlowy Document / file attachment missing", () => {
+  const document = mockDocument();
+
+  const list = document.root.items[0];
+
+  assertEquals(list.hasFile, false);
+  assertEquals(list.file, undefined);
+});
+
+Deno.test("WorkFlowy Document / getPreviewUrl calls client correctly", async () => {
+  let calledWith: { userId: number; nodeId: string; maxWidth: number; maxHeight: number } | undefined;
+  
+  const mockClientWithFileMethods = () => ({
+    getFilePreviewUrl: (userId: number | string, nodeId: string, maxWidth: number, maxHeight: number) => {
+      calledWith = { userId: userId as number, nodeId, maxWidth, maxHeight };
+      return Promise.resolve("https://workflowy.com/preview-url");
+    },
+    getOriginalFileUrl: () => Promise.resolve("https://workflowy.com/original-url"),
+  } as unknown as Client);
+  
+  const document = new Document(
+    mockClientWithFileMethods(),
+    mockTree(),
+    mockInitialization(),
+  );
+  
+  const listWithFile = document.getList("b1c2d3e4-f5a6-7890-abcd-ef1234567890");
+  const url = await listWithFile.getPreviewUrl(1024, 768);
+  
+  assertEquals(url, "https://workflowy.com/preview-url");
+  assertEquals(calledWith, {
+    userId: 0, // from mock initialization data
+    nodeId: "b1c2d3e4-f5a6-7890-abcd-ef1234567890",
+    maxWidth: 1024,
+    maxHeight: 768,
+  });
+});
+
+Deno.test("WorkFlowy Document / getFileUrl calls client correctly", async () => {
+  let calledWith: { userId: number; nodeId: string } | undefined;
+  
+  const mockClientWithFileMethods = () => ({
+    getFilePreviewUrl: () => Promise.resolve(""),
+    getOriginalFileUrl: (userId: number | string, nodeId: string) => {
+      calledWith = { userId: userId as number, nodeId };
+      return Promise.resolve("https://workflowy.com/original-url");
+    },
+  } as unknown as Client);
+  
+  const document = new Document(
+    mockClientWithFileMethods(),
+    mockTree(),
+    mockInitialization(),
+  );
+  
+  const listWithFile = document.getList("b1c2d3e4-f5a6-7890-abcd-ef1234567890");
+  const url = await listWithFile.getFileUrl();
+  
+  assertEquals(url, "https://workflowy.com/original-url");
+  assertEquals(calledWith, {
+    userId: 0, // from mock initialization data
+    nodeId: "b1c2d3e4-f5a6-7890-abcd-ef1234567890",
+  });
+});
+
+Deno.test("WorkFlowy Document / getPreviewUrl uses default dimensions", async () => {
+  let calledWith: { maxWidth: number; maxHeight: number } | undefined;
+  
+  const mockClientWithFileMethods = () => ({
+    getFilePreviewUrl: (_userId: number | string, _nodeId: string, maxWidth: number, maxHeight: number) => {
+      calledWith = { maxWidth, maxHeight };
+      return Promise.resolve("https://workflowy.com/preview-url");
+    },
+    getOriginalFileUrl: () => Promise.resolve(""),
+  } as unknown as Client);
+  
+  const document = new Document(
+    mockClientWithFileMethods(),
+    mockTree(),
+    mockInitialization(),
+  );
+  
+  const listWithFile = document.getList("b1c2d3e4-f5a6-7890-abcd-ef1234567890");
+  await listWithFile.getPreviewUrl(); // no arguments
+  
+  assertEquals(calledWith, {
+    maxWidth: 800,
+    maxHeight: 800,
+  });
 });

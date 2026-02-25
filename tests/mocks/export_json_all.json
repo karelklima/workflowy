@@ -55,8 +55,16 @@
       "name": "List with HTML special chars &lt; &gt; &amp; \" '"
     },
     {
-      "name": "List with long text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed luctus facilisis neque quis scelerisque. Etiam pharetra feugiat lorem, in fringilla nunc laoreet a. Nunc laoreet mauris non consequat gravida. Nunc placerat orci a sapien aliquam, volutpat posuere metus pellentesque. Nulla sit amet sapien ut urna sagittis eleifend ut at dolor. Sed erat metus, placerat id convallis sit amet, mollis vel lacus. Proin quis ullamcorper mauris. Cras commodo turpis vitae felis luctus, ut elementum odio pretium. Phasellus eleifend ut ex at faucibus. Mauris mollis augue at lectus pharetra mattis.",
-      "note": "Note: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed luctus facilisis neque quis scelerisque. Etiam pharetra feugiat lorem, in fringilla nunc laoreet a. Nunc laoreet mauris non consequat gravida. Nunc placerat orci a sapien aliquam, volutpat posuere metus pellentesque. Nulla sit amet sapien ut urna sagittis eleifend ut at dolor. Sed erat metus, placerat id convallis sit amet, mollis vel lacus. Proin quis ullamcorper mauris. Cras commodo turpis vitae felis luctus, ut elementum odio pretium. Phasellus eleifend ut ex at faucibus. Mauris mollis augue at lectus pharetra mattis."
+      "name": "List with long text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed luctus facilisis neque quis scelerisque. Etiam pharetra feugiat lorem, in fringilla nunc laoreet a. Nunc laoreet mauris non consequat gravida. Nunc placerat orci a sapien aliquam, volutpat posuere metus pellentesque. Nulla sit amet sapien ut urna sagittis eleifend ut at dolor. Sed erat metus, placerat id convallis sit amet, mollis vel lacus. Proin quis ullamcorper mauris. Cras commodo turpis vitae felis luctus, ut elementum odio pretium. Phasellus eleifend ut ex at faucibus. Mauris mollis augue at lectus pharetra mattis."
+    },
+    {
+      "name": "List with file attachment",
+      "file": {
+        "fileName": "document.pdf",
+        "fileType": "application/pdf",
+        "objectFolder": "xy/zw/uv",
+        "isAnimatedGIF": false
+      }
     }
   ]
 }

@@ -51,6 +51,18 @@ const TreeItemShareInfoSchema = z.object({
 
 export type TreeItemShareInfo = z.infer<typeof TreeItemShareInfoSchema>;
 
+export const S3FileSchema = z.object({
+  fileName: z.string(),
+  fileType: z.string(),
+  objectFolder: z.string(),
+  isAnimatedGIF: z.boolean().optional(),
+  imageOriginalWidth: z.number().optional(),
+  imageOriginalHeight: z.number().optional(),
+  imageOriginalPixels: z.number().optional(),
+});
+
+export type S3File = z.infer<typeof S3FileSchema>;
+
 export const TreeDataSchema = z.object({
   most_recent_operation_transaction_id: z.string(),
   items: z.array(
@@ -68,6 +80,7 @@ export const TreeDataSchema = z.object({
           originalId: z.string().optional(),
           isMirrorRoot: z.boolean().optional(),
         }).optional(),
+        s3File: S3FileSchema.optional(),
       }),
       as: z.string().optional(),
     }).transform((i) => ({
@@ -82,6 +95,7 @@ export const TreeDataSchema = z.object({
       originalId: i.metadata?.mirror?.originalId,
       isMirrorRoot: i.metadata?.mirror?.isMirrorRoot === true,
       shareId: i.as,
+      s3File: i.metadata?.s3File,
     })),
   ),
   shared_projects: z.record(z.string(), TreeItemShareInfoSchema),

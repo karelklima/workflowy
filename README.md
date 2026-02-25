@@ -10,6 +10,7 @@ programatically and perhaps create some new automations and integrations.
 - Export of lists to JSON or formatted plain text
 - Basic search of items in lists
 - Support for live copies (mirrors)
+- Downloading file attachments (images and other files)
 
 ## Basic usage
 
@@ -52,6 +53,8 @@ myList.name; // name of the list
 myList.note; // note of the list
 myList.isCompleted; // whether or not the list or item is completed
 myList.items; // items and sublists
+myList.file; // file attachment metadata (if present)
+myList.hasFile; // true if a file is attached
 ```
 
 ### Editing lists
@@ -73,6 +76,55 @@ if (document.isDirty()) {
   await document.save();
 }
 ```
+
+### Working with file attachments
+
+WorkFlowy supports attaching files and images to lists. The `file` property
+provides metadata about attached files:
+
+```typescript
+// Check if a list has a file attachment
+if (myList.hasFile) {
+  console.log(myList.file.fileName);    // Original filename
+  console.log(myList.file.fileType);    // MIME type (e.g., "image/png")
+  
+  // For images, dimensions are available
+  console.log(myList.file.imageOriginalWidth);
+  console.log(myList.file.imageOriginalHeight);
+}
+```
+
+### Downloading file attachments
+
+To download a file attachment, use the `getFileUrl()` or `getPreviewUrl()` methods on the list:
+
+```typescript
+const workflowy = new WorkFlowy("your@email.com", "your-password");
+const document = await workflowy.getDocument();
+
+// Find a list with a file attachment
+const listWithFile = document.findOne(/some pattern/);
+
+if (listWithFile?.hasFile) {
+  // Get a signed URL for the original file
+  const url = await listWithFile.getFileUrl();
+  
+  // Or get a signed URL for a preview (resized image)
+  // Parameters: maxWidth, maxHeight (default: 800x800)
+  const previewUrl = await listWithFile.getPreviewUrl(800, 800);
+  
+  // Download the file
+  const response = await fetch(url);
+  const buffer = await response.arrayBuffer();
+  
+  // Save or process the file
+  console.log(`Downloaded ${buffer.byteLength} bytes`);
+}
+```
+
+**Note:** 
+- `getFileUrl()` returns a URL to download the original file
+- `getPreviewUrl(maxWidth, maxHeight)` returns a URL to a resized preview (for images)
 
 ## Installation
 

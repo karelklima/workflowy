@@ -3,6 +3,7 @@ import {
   type InitializationData,
   type Operation,
   ROOT,
+  type S3File,
   type TreeData,
   type TreeItemShareInfo,
   type TreeItemWithChildren,
@@ -276,6 +277,40 @@ export class List {
     return this.data.note || "";
   }
 
+  /** File attachment metadata, or undefined if no file attached */
+  public get file(): S3File | undefined {
+    return this.data.s3File;
+  }
+
+  /** Returns true if this list has a file attachment */
+  public get hasFile(): boolean {
+    return this.data.s3File !== undefined;
+  }
+
+  /**
+   * Fetches a signed URL for a file attachment preview
+   * 
+   * Queries `workflowy.com/file-proxy/signed-preview/` endpoint
+   * @param maxWidth Maximum width for image preview (default: 800)
+   * @param maxHeight Maximum height for image preview (default: 800)
+   * @returns The signed URL string for the file preview
+   */
+  public async getPreviewUrl(maxWidth = 800, maxHeight = 800): Promise<string> {
+    const userId = this.#companion.initializationData.mainProjectTreeInfo.ownerId;
+    return this.#companion.client.getFilePreviewUrl(userId, this.id, maxWidth, maxHeight);
+  }
+
+  /**
+   * Fetches a signed URL for downloading the original file
+   * 
+   * Queries `workflowy.com/file-proxy/signed-original/` endpoint
+   * @returns The signed URL string for the original file
+   */
+  public async getFileUrl(): Promise<string> {
+    const userId = this.#companion.initializationData.mainProjectTreeInfo.ownerId;
+    return this.#companion.client.getOriginalFileUrl(userId, this.id);
+  }
+
   /** Date of creation, or undefined if not available */
   public get createdAt(): Date | undefined {
     if (this.data.created !== undefined) {
@@ -417,6 +452,7 @@ export class List {
       originalId: undefined,
       isMirrorRoot: false,
       shareId: undefined,
+      s3File: undefined,
       children: [],
       treeId: this.data.treeId,
     });

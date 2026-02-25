@@ -163,6 +163,22 @@
       "prnt": null,
       "metadata": {},
       "lm": 45674382
+    },
+    {
+      "id": "f1a2b3c4-d5e6-7890-1234-567890abcdef",
+      "nm": "List with file attachment",
+      "ct": 45674400,
+      "pr": 590,
+      "prnt": null,
+      "metadata": {
+        "s3File": {
+          "fileName": "document.pdf",
+          "fileType": "application/pdf",
+          "objectFolder": "xy/zw/uv",
+          "isAnimatedGIF": false
+        }
+      },
+      "lm": 45674401
     }
   ],
   "shared_projects": {},
