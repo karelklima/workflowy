@@ -73,7 +73,7 @@ Deno.test("WorkFlowy Export / To Plain Text partial", () => {
 Deno.test("WorkFlowy Export / To JSON all", () => {
   const document = mockDocument();
 
-  const json = document.root.toJson();
+  const json = document.root.toJson(false, true);
   const expected = JSON.parse(readFile("./mocks/export_json_all.json"));
 
   assertObjectMatch(json, expected);
@@ -82,7 +82,7 @@ Deno.test("WorkFlowy Export / To JSON all", () => {
 Deno.test("WorkFlowy Export / To JSON partial", () => {
   const document = mockDocument();
 
-  const json = document.root.items[0].toJson();
+  const json = document.root.items[0].toJson(false, true);
   const expected = JSON.parse(readFile("./mocks/export_json_partial.json"));
 
   assertObjectMatch(json, expected);

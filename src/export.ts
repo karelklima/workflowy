@@ -63,8 +63,12 @@ export function toPlainText(
   return text.join("\n");
 }
 
-// deno-lint-ignore no-explicit-any
-export function toJson(list: List, includeDates = false): any {
+export function toJson(
+  list: List,
+  includeDates = false,
+  includeFiles = false,
+  // deno-lint-ignore no-explicit-any
+): any {
   const dates = includeDates
     ? {
       createdAt: list.createdAt?.toISOString(),
@@ -73,14 +77,22 @@ export function toJson(list: List, includeDates = false): any {
     }
     : {};
 
+  const files = includeFiles && list.hasFile
+    ? {
+      file: list.file,
+    }
+    : {};
+
   return {
     id: list.id,
     name: list.name,
     note: list.note,
     isCompleted: list.isCompleted,
-    file: list.file,
+    ...files,
     ...dates,
-    items: list.items.map((sublist) => toJson(sublist, includeDates)),
+    items: list.items.map((sublist) =>
+      toJson(sublist, includeDates, includeFiles)
+    ),
   };
 }
 

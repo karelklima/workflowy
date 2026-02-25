@@ -267,6 +267,10 @@ export class List {
     return hyphenIndex === -1 ? id : id.slice(0, hyphenIndex);
   }
 
+  private get userId(): number {
+    return this.#companion.initializationData.mainProjectTreeInfo.ownerId;
+  }
+
   /** List name */
   public get name(): string {
     return this.data.name;
@@ -289,26 +293,29 @@ export class List {
 
   /**
    * Fetches a signed URL for a file attachment preview
-   * 
+   *
    * Queries `workflowy.com/file-proxy/signed-preview/` endpoint
    * @param maxWidth Maximum width for image preview (default: 800)
    * @param maxHeight Maximum height for image preview (default: 800)
    * @returns The signed URL string for the file preview
    */
-  public async getPreviewUrl(maxWidth = 800, maxHeight = 800): Promise<string> {
-    const userId = this.#companion.initializationData.mainProjectTreeInfo.ownerId;
-    return this.#companion.client.getFilePreviewUrl(userId, this.id, maxWidth, maxHeight);
+  public getPreviewUrl(maxWidth = 800, maxHeight = 800): Promise<string> {
+    return this.#companion.client.getFilePreviewUrl(
+      this.userId,
+      this.id,
+      maxWidth,
+      maxHeight,
+    );
   }
 
   /**
    * Fetches a signed URL for downloading the original file
-   * 
+   *
    * Queries `workflowy.com/file-proxy/signed-original/` endpoint
    * @returns The signed URL string for the original file
    */
-  public async getFileUrl(): Promise<string> {
-    const userId = this.#companion.initializationData.mainProjectTreeInfo.ownerId;
-    return this.#companion.client.getOriginalFileUrl(userId, this.id);
+  public getFileUrl(): Promise<string> {
+    return this.#companion.client.getOriginalFileUrl(this.userId, this.id);
   }
 
   /** Date of creation, or undefined if not available */
@@ -753,11 +760,12 @@ export class List {
    * Prints the list and its content in JSON format
    *
    * @param includeDates Whether to include creation, modification, and completion dates
+   * @param includeFiles Whether to include file attachment metadata
    * @returns list in JSON format
    */
   // deno-lint-ignore no-explicit-any
-  public toJson(includeDates = false): any {
-    return toJson(this, includeDates);
+  public toJson(includeDates = false, includeFiles = false): any {
+    return toJson(this, includeDates, includeFiles);
   }
 
   /**
