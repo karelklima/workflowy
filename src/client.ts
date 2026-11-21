@@ -14,7 +14,7 @@ import {
 } from "./schema.ts";
 
 const WORKFLOWY_URL = "https://workflowy.com";
-const LOGIN_URL = `${WORKFLOWY_URL}/ajax_login`;
+const LOGIN_URL = `${WORKFLOWY_URL}/api/auth?client_version=23`;
 const INITIALIZATION_DATA_URL =
   `${WORKFLOWY_URL}/get_initialization_data?client_version=21&client_version_v2=28&no_root_children=1`;
 const TREE_DATA_URL = `${WORKFLOWY_URL}/get_tree_data/`;
@@ -144,13 +144,13 @@ export class Client {
    * Authenticates the user. Methods like `.getTreeData()` and `.getInicializationData()`
    * call this method if the user is not yet authenticated.
    *
-   * Queries `workflowy.com/ajax_login` endpoint
+   * Queries `workflowy.com/api/auth` endpoint
    * @returns `{ success: true }` if the autentication was successful
    * @throws Error if the authentication failed
    */
   public async login(): Promise<LoginResult> {
     const formData = new FormData();
-    formData.append("username", this.#username);
+    formData.append("email", this.#username);
     formData.append("password", this.#password);
 
     const response = await this.#timeoutFetch(LOGIN_URL, {

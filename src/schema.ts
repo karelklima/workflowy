@@ -4,10 +4,13 @@ export const ROOT = "Root";
 
 export const LoginResultSchema = z.object({
   success: z.boolean().optional(),
-  errors: z.object().optional(),
+  // e.g. `{ "password": ["Wrong password."] }`
+  errors: z.record(z.string(), z.unknown()).optional(),
 }).transform((i) => ({
   success: i.success === true,
-  errors: JSON.stringify(i.errors),
+  errors: Object.entries(i.errors ?? {})
+    .map(([field, messages]) => `${field}: ${[messages].flat().join(" ")}`)
+    .join(", "),
 }));
 
 export type LoginResult = z.infer<typeof LoginResultSchema>;
